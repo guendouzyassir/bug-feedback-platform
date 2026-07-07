@@ -3,8 +3,13 @@
 {% block title %}Admin Dashboard | Bug Report Platform{% endblock %}
 
 {% block body %}
-    <h1>Admin Dashboard</h1>
-    <p class="muted">Week 1 baseline is ready: authentication, roles, entities, database, and demo data.</p>
+    <div class="page-header">
+        <div>
+            <h1>Admin Dashboard</h1>
+            <p class="muted">Project, bug, and workflow overview.</p>
+        </div>
+        <a class="button" href="{{ path('app_bug_report_index') }}">View Bugs</a>
+    </div>
 
     <section class="grid">
         <article class="metric">
@@ -18,6 +23,60 @@
         <article class="metric">
             Bug Reports
             <strong>{{ bugCount }}</strong>
+        </article>
+        <article class="metric">
+            Open
+            <strong>{{ openBugCount }}</strong>
+        </article>
+        <article class="metric">
+            In Progress
+            <strong>{{ inProgressBugCount }}</strong>
+        </article>
+        <article class="metric">
+            Fixed
+            <strong>{{ fixedBugCount }}</strong>
+        </article>
+        <article class="metric">
+            Critical
+            <strong>{{ criticalBugCount }}</strong>
+        </article>
+        <article class="metric">
+            Unassigned
+            <strong>{{ unassignedBugCount }}</strong>
+        </article>
+    </section>
+
+    <section class="dashboard-grid">
+        <article class="panel stack">
+            <h2>Bugs By Status</h2>
+            <table>
+                <tbody>
+                    {% for item in bugsByStatus %}
+                        <tr>
+                            <td>{{ item.label }}</td>
+                            <td><strong>{{ item.count }}</strong></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </article>
+
+        <article class="panel stack">
+            <h2>Bugs By Project</h2>
+            {% if bugsByProject is empty %}
+                <p class="muted">No bugs have been reported yet.</p>
+            {% else %}
+                <table>
+                    <tbody>
+                        {% for item in bugsByProject %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td><strong>{{ item.count }}</strong></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         </article>
     </section>
 {% endblock %}

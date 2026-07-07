@@ -22,6 +22,15 @@ Week 2 workflow is implemented:
 - Screenshot upload with validation
 - Secure screenshot viewing through Symfony routes
 
+Week 3 management workflow is implemented:
+
+- Admin bug assignment to developers
+- Admin bug priority and status management
+- Developer status updates for assigned bugs
+- Search and filters for bugs
+- Basic admin statistics dashboard
+- Permission checks for bug viewing, management, and status updates
+
 ## Requirements
 
 - PHP 8.2 or higher
@@ -68,9 +77,21 @@ var/uploads/screenshots/
 
 Only the stored filename is saved in the database. Screenshots are viewed through the protected bug report route.
 
-## Week 3 Target
+## Bug Filters
 
-- Assign bugs to developers
-- Update bug status
-- Search and filter bugs
-- Basic statistics dashboard
+The bug list supports filtering by:
+
+- Keyword
+- Project
+- Status
+- Priority
+- Developer
+- Date range
+
+## Week 4 Target
+
+- Final UI polish
+- Extra manual testing
+- README screenshots
+- Internship report
+- Final presentation/demo preparation

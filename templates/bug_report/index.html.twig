@@ -15,6 +15,72 @@
     </div>
 
     <section class="panel">
+        <form method="get" class="filters">
+            <label>
+                Keyword
+                <input type="search" name="keyword" value="{{ filters.keyword }}" placeholder="Title or description">
+            </label>
+
+            <label>
+                Project
+                <select name="project">
+                    <option value="">All projects</option>
+                    {% for project in projects %}
+                        <option value="{{ project.id }}" {{ filters.project == project.id ? 'selected' : '' }}>{{ project.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                Status
+                <select name="status">
+                    <option value="">All statuses</option>
+                    {% for status in statuses %}
+                        <option value="{{ status.value }}" {{ filters.status == status.value ? 'selected' : '' }}>{{ status.label() }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                Priority
+                <select name="priority">
+                    <option value="">All priorities</option>
+                    {% for priority in priorities %}
+                        <option value="{{ priority.value }}" {{ filters.priority == priority.value ? 'selected' : '' }}>{{ priority.label() }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_DEVELOPER') %}
+                <label>
+                    Developer
+                    <select name="developer">
+                        <option value="">All developers</option>
+                        {% for developer in developers %}
+                            <option value="{{ developer.id }}" {{ filters.developer == developer.id ? 'selected' : '' }}>{{ developer.fullName }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            {% endif %}
+
+            <label>
+                From
+                <input type="date" name="dateFrom" value="{{ filters.dateFrom }}">
+            </label>
+
+            <label>
+                To
+                <input type="date" name="dateTo" value="{{ filters.dateTo }}">
+            </label>
+
+            <div class="filter-actions">
+                <button class="button">Filter</button>
+                <a class="button button-secondary" href="{{ path('app_bug_report_index') }}">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="panel">
         {% if bug_reports is empty %}
             <p class="muted">No bug reports found.</p>
         {% else %}
@@ -31,7 +97,7 @@
                             <th>Developer</th>
                             <th>Screenshot</th>
                             <th>Created</th>
-                            <th></th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,7 +118,14 @@
                                 <td>{{ bug_report.assignedDeveloper ? bug_report.assignedDeveloper.fullName : 'Unassigned' }}</td>
                                 <td>{{ bug_report.screenshotFilename ? 'Yes' : 'No' }}</td>
                                 <td>{{ bug_report.createdAt|date('Y-m-d H:i') }}</td>
-                                <td><a href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">View</a></td>
+                                <td>
+                                    <div class="actions">
+                                        <a href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">View</a>
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <a href="{{ path('app_bug_report_manage', {'id': bug_report.id}) }}">Manage</a>
+                                        {% endif %}
+                                    </div>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>

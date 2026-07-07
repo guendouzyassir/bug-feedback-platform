@@ -15,4 +15,19 @@ class UserRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, User::class);
     }
+
+    /**
+     * @return User[]
+     */
+    public function findDevelopers(): array
+    {
+        $developers = array_filter(
+            $this->findBy(['isActive' => true]),
+            static fn (User $user): bool => in_array('ROLE_DEVELOPER', $user->getRoles(), true)
+        );
+
+        usort($developers, static fn (User $a, User $b): int => strcmp((string) $a->getFullName(), (string) $b->getFullName()));
+
+        return array_values($developers);
+    }
 }

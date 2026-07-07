@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Manage Bug #{{ bug_report.id }} | Bug Report Platform{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Manage Bug #{{ bug_report.id }}</h1>
+            <p class="muted">{{ bug_report.title }}</p>
+        </div>
+        <a class="button button-secondary" href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">Back to Bug</a>
+    </div>
+
+    <section class="panel stack">
+        <dl class="meta-list">
+            <div>
+                <dt>Project</dt>
+                <dd>{{ bug_report.project.name }}</dd>
+            </div>
+            <div>
+                <dt>Reporter</dt>
+                <dd>{{ bug_report.reporter.fullName }}</dd>
+            </div>
+            <div>
+                <dt>Created</dt>
+                <dd>{{ bug_report.createdAt|date('Y-m-d H:i') }}</dd>
+            </div>
+        </dl>
+
+        {{ form_start(form, {'attr': {'class': 'form'}}) }}
+            {{ form_row(form.assignedDeveloper) }}
+            {{ form_row(form.priority) }}
+            {{ form_row(form.status) }}
+
+            <button class="button">Save Management Changes</button>
+        {{ form_end(form) }}
+    </section>
+{% endblock %}

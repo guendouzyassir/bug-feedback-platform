@@ -121,6 +121,11 @@
                     resize: vertical;
                 }
 
+                .form-inline {
+                    align-items: end;
+                    grid-template-columns: minmax(180px, 280px) auto;
+                }
+
                 .page-header {
                     align-items: center;
                     display: flex;
@@ -252,6 +257,46 @@
                     padding: .7rem 1rem;
                 }
 
+                .button-secondary {
+                    background: #eef2f7;
+                    color: var(--text);
+                }
+
+                .actions {
+                    align-items: center;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: .6rem;
+                }
+
+                .filters {
+                    display: grid;
+                    gap: .9rem;
+                    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                }
+
+                .filters input,
+                .filters select {
+                    border: 1px solid var(--line);
+                    border-radius: 6px;
+                    font: inherit;
+                    padding: .65rem .75rem;
+                    width: 100%;
+                }
+
+                .filter-actions {
+                    align-items: end;
+                    display: flex;
+                    gap: .6rem;
+                }
+
+                .dashboard-grid {
+                    display: grid;
+                    gap: 1rem;
+                    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                    margin-top: 1rem;
+                }
+
                 .alert {
                     border-radius: 6px;
                     padding: .75rem;
@@ -271,6 +316,10 @@
                     .topbar {
                         align-items: flex-start;
                         flex-direction: column;
+                    }
+
+                    .form-inline {
+                        grid-template-columns: 1fr;
                     }
                 }
             </style>

@@ -5,10 +5,15 @@ namespace App\Controller;
 use App\Entity\BugReport;
 use App\Entity\BugComment;
 use App\Entity\User;
+use App\Enum\BugPriority;
 use App\Enum\BugStatus;
 use App\Form\BugCommentType;
+use App\Form\BugManagementType;
 use App\Form\BugReportType;
+use App\Form\BugStatusType;
 use App\Repository\BugReportRepository;
+use App\Repository\ProjectRepository;
+use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,20 +29,77 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class BugReportController extends AbstractController
 {
     #[Route(name: 'app_bug_report_index', methods: ['GET'])]
-    public function index(BugReportRepository $bugReportRepository): Response
-    {
+    public function index(
+        Request $request,
+        BugReportRepository $bugReportRepository,
+        ProjectRepository $projectRepository,
+        UserRepository $userRepository,
+    ): Response {
+        [$filters, $filterValues] = $this->buildFilters($request);
+
         /** @var User $user */
         $user = $this->getUser();
 
-        $canSeeAllBugs = $this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_DEVELOPER');
-        $bugReports = $canSeeAllBugs
-            ? $bugReportRepository->findBy([], ['createdAt' => 'DESC'])
-            : $bugReportRepository->findBy(['reporter' => $user], ['createdAt' => 'DESC']);
+        $canSeeAllBugs = $this->canSeeAllBugReports();
+        $bugReports = $bugReportRepository->findVisibleWithFilters($user, $canSeeAllBugs, $filters);
 
         return $this->render('bug_report/index.html.twig', [
             'bug_reports' => $bugReports,
             'scope_label' => $canSeeAllBugs ? 'All bug reports' : 'My bug reports',
+            'projects' => $projectRepository->findBy(['isActive' => true], ['name' => 'ASC']),
+            'developers' => $userRepository->findDevelopers(),
+            'statuses' => BugStatus::cases(),
+            'priorities' => BugPriority::cases(),
+            'filters' => $filterValues,
         ]);
+    }
+
+    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/{id}/manage', name: 'app_bug_report_manage', methods: ['GET', 'POST'])]
+    public function manage(
+        Request $request,
+        BugReport $bugReport,
+        EntityManagerInterface $entityManager,
+        UserRepository $userRepository,
+    ): Response {
+        $form = $this->createForm(BugManagementType::class, $bugReport, [
+            'developers' => $userRepository->findDevelopers(),
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $bugReport->touch();
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Bug report management details updated.');
+
+            return $this->redirectToRoute('app_bug_report_show', ['id' => $bugReport->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('bug_report/manage.html.twig', [
+            'bug_report' => $bugReport,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}/status', name: 'app_bug_report_status', methods: ['POST'])]
+    public function updateStatus(Request $request, BugReport $bugReport, EntityManagerInterface $entityManager): Response
+    {
+        if (!$this->canUpdateBugStatus($bugReport)) {
+            throw $this->createAccessDeniedException('You cannot update this bug report status.');
+        }
+
+        $form = $this->createStatusForm($bugReport);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+            $this->addFlash('success', 'Bug status updated.');
+        } else {
+            $this->addFlash('danger', 'The status update form is invalid.');
+        }
+
+        return $this->redirectToRoute('app_bug_report_show', ['id' => $bugReport->getId()], Response::HTTP_SEE_OTHER);
     }
 
     #[IsGranted('ROLE_CLIENT')]
@@ -106,6 +168,8 @@ final class BugReportController extends AbstractController
         return $this->render('bug_report/show.html.twig', [
             'bug_report' => $bugReport,
             'comment_form' => $commentForm,
+            'status_form' => $this->canUpdateBugStatus($bugReport) ? $this->createStatusForm($bugReport) : null,
+            'can_manage' => $this->canManageBugReport(),
         ]);
     }
 
@@ -136,8 +200,71 @@ final class BugReportController extends AbstractController
 
     private function canViewBugReport(BugReport $bugReport): bool
     {
-        return $this->isGranted('ROLE_ADMIN')
-            || $this->isGranted('ROLE_DEVELOPER')
+        return $this->canSeeAllBugReports()
             || $bugReport->getReporter()?->getId() === $this->getUser()?->getId();
+    }
+
+    private function canSeeAllBugReports(): bool
+    {
+        return $this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_DEVELOPER');
+    }
+
+    private function canManageBugReport(): bool
+    {
+        return $this->isGranted('ROLE_ADMIN');
+    }
+
+    private function canUpdateBugStatus(BugReport $bugReport): bool
+    {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return true;
+        }
+
+        return $this->isGranted('ROLE_DEVELOPER')
+            && $bugReport->getAssignedDeveloper()?->getId() === $this->getUser()?->getId();
+    }
+
+    /**
+     * @return array{0: array<string, mixed>, 1: array<string, string>}
+     */
+    private function buildFilters(Request $request): array
+    {
+        $values = [
+            'keyword' => trim((string) $request->query->get('keyword', '')),
+            'project' => (string) $request->query->get('project', ''),
+            'status' => (string) $request->query->get('status', ''),
+            'priority' => (string) $request->query->get('priority', ''),
+            'developer' => (string) $request->query->get('developer', ''),
+            'dateFrom' => (string) $request->query->get('dateFrom', ''),
+            'dateTo' => (string) $request->query->get('dateTo', ''),
+        ];
+
+        return [[
+            'keyword' => $values['keyword'] !== '' ? $values['keyword'] : null,
+            'project' => ctype_digit($values['project']) ? (int) $values['project'] : null,
+            'status' => BugStatus::tryFrom($values['status']),
+            'priority' => BugPriority::tryFrom($values['priority']),
+            'developer' => ctype_digit($values['developer']) ? (int) $values['developer'] : null,
+            'dateFrom' => $this->dateFilter($values['dateFrom']),
+            'dateTo' => $this->dateFilter($values['dateTo']),
+        ], $values];
+    }
+
+    private function dateFilter(string $value): ?\DateTimeImmutable
+    {
+        if ($value === '') {
+            return null;
+        }
+
+        $date = \DateTimeImmutable::createFromFormat('Y-m-d', $value);
+
+        return $date instanceof \DateTimeImmutable ? $date : null;
+    }
+
+    private function createStatusForm(BugReport $bugReport)
+    {
+        return $this->createForm(BugStatusType::class, $bugReport, [
+            'action' => $this->generateUrl('app_bug_report_status', ['id' => $bugReport->getId()]),
+        ]);
     }
 }

@@ -8,7 +8,12 @@
             <h1>{{ bug_report.title }}</h1>
             <p class="muted">#{{ bug_report.id }} · {{ bug_report.project.name }} · {{ bug_report.createdAt|date('Y-m-d H:i') }}</p>
         </div>
-        <a href="{{ path('app_bug_report_index') }}">Back to bugs</a>
+        <div class="actions">
+            {% if can_manage %}
+                <a class="button" href="{{ path('app_bug_report_manage', {'id': bug_report.id}) }}">Manage</a>
+            {% endif %}
+            <a class="button button-secondary" href="{{ path('app_bug_report_index') }}">Back to Bugs</a>
+        </div>
     </div>
 
     <section class="grid">
@@ -86,6 +91,16 @@
             {% endif %}
         </dl>
     </section>
+
+    {% if status_form %}
+        <section class="panel stack">
+            <h2>Update Status</h2>
+            {{ form_start(status_form, {'attr': {'class': 'form form-inline'}}) }}
+                {{ form_row(status_form.status) }}
+                <button class="button">Update Status</button>
+            {{ form_end(status_form) }}
+        </section>
+    {% endif %}
 
     <section class="panel stack">
         <h2>Comments</h2>
