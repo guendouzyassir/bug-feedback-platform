@@ -54,22 +54,23 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
     }
 
     #[Route('/{id}/edit', name: 'app_admin_project_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Project $project, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(ProjectType::class, $project);
-        $form->handleRequest($request);
+  public function edit(Request $request, Project $project, EntityManagerInterface $entityManager): Response
+  {
+      $form = $this->createForm(ProjectType::class, $project);
+      $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+      if ($form->isSubmitted() && $form->isValid()) {
+          $project->touch();
+          $entityManager->flush();
 
-            return $this->redirectToRoute('app_admin_project_index', [], Response::HTTP_SEE_OTHER);
-        }
+          return $this->redirectToRoute('app_admin_project_index', [], Response::HTTP_SEE_OTHER);
+      }
 
-        return $this->render('admin/project/edit.html.twig', [
-            'project' => $project,
-            'form' => $form,
-        ]);
-    }
+      return $this->render('admin/project/edit.html.twig', [
+          'project' => $project,
+          'form' => $form,
+      ]);
+  }
 
     #[Route('/{id}', name: 'app_admin_project_delete', methods: ['POST'])]
     public function delete(Request $request, Project $project, EntityManagerInterface $entityManager): Response
