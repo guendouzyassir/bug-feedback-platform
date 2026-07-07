@@ -6,7 +6,7 @@
     <div class="page-header">
         <div>
             <h1>{{ bug_report.title }}</h1>
-            <p class="muted">{{ bug_report.project.name }} · {{ bug_report.createdAt|date('Y-m-d H:i') }}</p>
+            <p class="muted">#{{ bug_report.id }} · {{ bug_report.project.name }} · {{ bug_report.createdAt|date('Y-m-d H:i') }}</p>
         </div>
         <a href="{{ path('app_bug_report_index') }}">Back to bugs</a>
     </div>
@@ -14,11 +14,15 @@
     <section class="grid">
         <article class="metric">
             Priority
-            <strong>{{ bug_report.priority.label() }}</strong>
+            <strong><span class="badge badge-priority-{{ bug_report.priority.value }}">{{ bug_report.priority.label() }}</span></strong>
         </article>
         <article class="metric">
             Status
-            <strong>{{ bug_report.status.label() }}</strong>
+            <strong><span class="badge badge-status-{{ bug_report.status.value }}">{{ bug_report.status.label() }}</span></strong>
+        </article>
+        <article class="metric">
+            Reporter
+            <strong>{{ bug_report.reporter.fullName }}</strong>
         </article>
         <article class="metric">
             Developer
@@ -50,6 +54,46 @@
             <div>
                 <h2>Actual Result</h2>
                 <p>{{ bug_report.actualResult|nl2br }}</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="panel stack">
+        <h2>Timeline</h2>
+        <dl class="meta-list">
+            <div>
+                <dt>Created</dt>
+                <dd>{{ bug_report.createdAt|date('Y-m-d H:i') }}</dd>
+            </div>
+            <div>
+                <dt>Last Updated</dt>
+                <dd>{{ bug_report.updatedAt|date('Y-m-d H:i') }}</dd>
+            </div>
+            {% if bug_report.closedAt %}
+                <div>
+                    <dt>Closed</dt>
+                    <dd>{{ bug_report.closedAt|date('Y-m-d H:i') }}</dd>
+                </div>
+            {% endif %}
+        </dl>
+    </section>
+
+    <section class="panel stack">
+        <h2>Comments</h2>
+
+        {% if bug_report.comments is empty %}
+            <p class="muted">No comments yet.</p>
+        {% else %}
+            <div class="comments">
+                {% for comment in bug_report.comments %}
+                    <article class="comment">
+                        <header>
+                            <strong>{{ comment.author.fullName }}</strong>
+                            <span class="muted">{{ comment.createdAt|date('Y-m-d H:i') }}</span>
+                        </header>
+                        <p>{{ comment.content|nl2br }}</p>
+                    </article>
+                {% endfor %}
             </div>
         {% endif %}
     </section>

@@ -24,12 +24,14 @@ final class BugReportController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $bugReports = $this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_DEVELOPER')
+        $canSeeAllBugs = $this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_DEVELOPER');
+        $bugReports = $canSeeAllBugs
             ? $bugReportRepository->findBy([], ['createdAt' => 'DESC'])
             : $bugReportRepository->findBy(['reporter' => $user], ['createdAt' => 'DESC']);
 
         return $this->render('bug_report/index.html.twig', [
             'bug_reports' => $bugReports,
+            'scope_label' => $canSeeAllBugs ? 'All bug reports' : 'My bug reports',
         ]);
     }
 
