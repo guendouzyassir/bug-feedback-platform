@@ -81,6 +81,11 @@
     <section class="panel stack">
         <h2>Comments</h2>
 
+        {{ form_start(comment_form, {'attr': {'class': 'form'}}) }}
+            {{ form_row(comment_form.content) }}
+            <button class="button">Add Comment</button>
+        {{ form_end(comment_form) }}
+
         {% if bug_report.comments is empty %}
             <p class="muted">No comments yet.</p>
         {% else %}

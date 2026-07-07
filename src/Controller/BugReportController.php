@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\BugReport;
+use App\Entity\BugComment;
 use App\Entity\User;
 use App\Enum\BugStatus;
+use App\Form\BugCommentType;
 use App\Form\BugReportType;
 use App\Repository\BugReportRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -65,8 +67,8 @@ final class BugReportController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_bug_report_show', methods: ['GET'])]
-    public function show(BugReport $bugReport): Response
+    #[Route('/{id}', name: 'app_bug_report_show', methods: ['GET', 'POST'])]
+    public function show(Request $request, BugReport $bugReport, EntityManagerInterface $entityManager): Response
     {
         if (
             !$this->isGranted('ROLE_ADMIN')
@@ -76,8 +78,30 @@ final class BugReportController extends AbstractController
             throw $this->createAccessDeniedException('You cannot view this bug report.');
         }
 
+        /** @var User $user */
+        $user = $this->getUser();
+        $comment = new BugComment();
+        $commentForm = $this->createForm(BugCommentType::class, $comment);
+        $commentForm->handleRequest($request);
+
+        if ($commentForm->isSubmitted() && $commentForm->isValid()) {
+            $comment
+                ->setBugReport($bugReport)
+                ->setAuthor($user);
+
+            $bugReport->touch();
+
+            $entityManager->persist($comment);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Comment added successfully.');
+
+            return $this->redirectToRoute('app_bug_report_show', ['id' => $bugReport->getId()], Response::HTTP_SEE_OTHER);
+        }
+
         return $this->render('bug_report/show.html.twig', [
             'bug_report' => $bugReport,
+            'comment_form' => $commentForm,
         ]);
     }
 }
