@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Dashboard | Bug Report Platform{% endblock %}
+
+{% block body %}
+    <h1>Admin Dashboard</h1>
+    <p class="muted">Week 1 baseline is ready: authentication, roles, entities, database, and demo data.</p>
+
+    <section class="grid">
+        <article class="metric">
+            Users
+            <strong>{{ userCount }}</strong>
+        </article>
+        <article class="metric">
+            Projects
+            <strong>{{ projectCount }}</strong>
+        </article>
+        <article class="metric">
+            Bug Reports
+            <strong>{{ bugCount }}</strong>
+        </article>
+    </section>
+{% endblock %}

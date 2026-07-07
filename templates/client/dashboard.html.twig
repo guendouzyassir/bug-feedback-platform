@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Client Dashboard | Bug Report Platform{% endblock %}
+
+{% block body %}
+    <h1>Client Dashboard</h1>
+    <p class="muted">This role will create and follow bug reports in Week 2.</p>
+
+    <section class="grid">
+        <article class="metric">
+            Reported Bugs
+            <strong>{{ reportedBugCount }}</strong>
+        </article>
+    </section>
+{% endblock %}

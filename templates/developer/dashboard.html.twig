@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Developer Dashboard | Bug Report Platform{% endblock %}
+
+{% block body %}
+    <h1>Developer Dashboard</h1>
+    <p class="muted">This role will manage assigned bugs in Week 2 and Week 3.</p>
+
+    <section class="grid">
+        <article class="metric">
+            Assigned Bugs
+            <strong>{{ assignedBugCount }}</strong>
+        </article>
+    </section>
+{% endblock %}
