@@ -5,7 +5,7 @@
 {% block body %}
     <section class="panel" style="max-width: 420px; margin: 2rem auto;">
         <h1>Login</h1>
-        <p class="muted">Use one of the seeded demo accounts to enter the platform.</p>
+        <p class="muted">Sign in with a demo account to test each workflow.</p>
 
         {% if error %}
             <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>

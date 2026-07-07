@@ -3,8 +3,13 @@
 {% block title %}Developer Dashboard | Bug Report Platform{% endblock %}
 
 {% block body %}
-    <h1>Developer Dashboard</h1>
-    <p class="muted">This role will manage assigned bugs in Week 2 and Week 3.</p>
+    <div class="page-header">
+        <div>
+            <h1>Developer Dashboard</h1>
+            <p class="muted">Review assigned work and update bug status.</p>
+        </div>
+        <a class="button" href="{{ path('app_bug_report_index') }}">View Bugs</a>
+    </div>
 
     <section class="grid">
         <article class="metric">

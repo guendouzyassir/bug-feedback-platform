@@ -3,13 +3,22 @@
 {% block title %}Client Dashboard | Bug Report Platform{% endblock %}
 
 {% block body %}
-    <h1>Client Dashboard</h1>
-    <p class="muted">This role will create and follow bug reports in Week 2.</p>
+    <div class="page-header">
+        <div>
+            <h1>Client Dashboard</h1>
+            <p class="muted">Create bug reports and follow your submitted issues.</p>
+        </div>
+        <a class="button" href="{{ path('app_bug_report_new') }}">New Bug Report</a>
+    </div>
 
     <section class="grid">
         <article class="metric">
             Reported Bugs
             <strong>{{ reportedBugCount }}</strong>
         </article>
+    </section>
+
+    <section class="panel">
+        <a href="{{ path('app_bug_report_index') }}">View my bug reports</a>
     </section>
 {% endblock %}

@@ -1,11 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Project{% endblock %}
+{% block title %}New Project | Bug Report Platform{% endblock %}
 
 {% block body %}
-    <h1>Create new Project</h1>
+    <div class="page-header">
+        <div>
+            <h1>New Project</h1>
+            <p class="muted">Create a project or application that clients can report bugs against.</p>
+        </div>
+        <a class="button button-secondary" href="{{ path('app_admin_project_index') }}">Back to Projects</a>
+    </div>
 
-    {{ include('admin/project/_form.html.twig') }}
-
-    <a href="{{ path('app_admin_project_index') }}">back to list</a>
+    <section class="panel">
+        {{ include('admin/project/_form.html.twig') }}
+    </section>
 {% endblock %}

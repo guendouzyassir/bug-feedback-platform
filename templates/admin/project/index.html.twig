@@ -1,45 +1,56 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Project index{% endblock %}
+{% block title %}Projects | Bug Report Platform{% endblock %}
 
 {% block body %}
-    <h1>Project index</h1>
+    <div class="page-header">
+        <div>
+            <h1>Projects</h1>
+            <p class="muted">Manage the web and mobile applications that can receive bug reports.</p>
+        </div>
+        <a class="button" href="{{ path('app_admin_project_new') }}">New Project</a>
+    </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Platform</th>
-                <th>IsActive</th>
-                <th>CreatedAt</th>
-                <th>UpdatedAt</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for project in projects %}
-            <tr>
-                <td>{{ project.id }}</td>
-                <td>{{ project.name }}</td>
-                <td>{{ project.description }}</td>
-                <td>{{ project.platform }}</td>
-                <td>{{ project.isActive ? 'Yes' : 'No' }}</td>
-                <td>{{ project.createdAt ? project.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ project.updatedAt ? project.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_admin_project_show', {'id': project.id}) }}">show</a>
-                    <a href="{{ path('app_admin_project_edit', {'id': project.id}) }}">edit</a>
-                </td>
-            </tr>
+    <section class="panel">
+        {% if projects is empty %}
+            <p class="muted">No projects have been created yet.</p>
         {% else %}
-            <tr>
-                <td colspan="8">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_admin_project_new') }}">Create new</a>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Platform</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in projects %}
+                            <tr>
+                                <td>
+                                    <a href="{{ path('app_admin_project_show', {'id': project.id}) }}">{{ project.name }}</a>
+                                    {% if project.description %}
+                                        <div class="muted">{{ project.description }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ project.platform }}</td>
+                                <td>{{ project.isActive ? 'Active' : 'Inactive' }}</td>
+                                <td>{{ project.createdAt|date('Y-m-d H:i') }}</td>
+                                <td>{{ project.updatedAt|date('Y-m-d H:i') }}</td>
+                                <td>
+                                    <div class="actions">
+                                        <a href="{{ path('app_admin_project_show', {'id': project.id}) }}">View</a>
+                                        <a href="{{ path('app_admin_project_edit', {'id': project.id}) }}">Edit</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </section>
 {% endblock %}

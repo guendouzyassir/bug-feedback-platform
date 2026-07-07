@@ -1,4 +1,7 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'class': 'form'}}) }}
+    {{ form_row(form.name) }}
+    {{ form_row(form.description) }}
+    {{ form_row(form.platform) }}
+    {{ form_row(form.isActive) }}
+    <button class="button">{{ button_label|default('Save Project') }}</button>
 {{ form_end(form) }}
