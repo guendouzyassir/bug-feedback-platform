@@ -56,6 +56,15 @@
                 <p>{{ bug_report.actualResult|nl2br }}</p>
             </div>
         {% endif %}
+
+        {% if bug_report.screenshotFilename %}
+            <div>
+                <h2>Screenshot</h2>
+                <a href="{{ path('app_bug_report_screenshot', {'id': bug_report.id}) }}" target="_blank" rel="noopener">
+                    <img class="screenshot-preview" src="{{ path('app_bug_report_screenshot', {'id': bug_report.id}) }}" alt="Screenshot for {{ bug_report.title }}">
+                </a>
+            </div>
+        {% endif %}
     </section>
 
     <section class="panel stack">

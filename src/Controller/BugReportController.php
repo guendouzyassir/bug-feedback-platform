@@ -9,10 +9,13 @@ use App\Enum\BugStatus;
 use App\Form\BugCommentType;
 use App\Form\BugReportType;
 use App\Repository\BugReportRepository;
+use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -39,7 +42,7 @@ final class BugReportController extends AbstractController
 
     #[IsGranted('ROLE_CLIENT')]
     #[Route('/new', name: 'app_bug_report_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -52,6 +55,11 @@ final class BugReportController extends AbstractController
             $bugReport
                 ->setReporter($user)
                 ->setStatus(BugStatus::Open);
+
+            $screenshotFile = $form->get('screenshot')->getData();
+            if ($screenshotFile !== null) {
+                $bugReport->setScreenshotFilename($fileUploader->upload($screenshotFile));
+            }
 
             $entityManager->persist($bugReport);
             $entityManager->flush();
@@ -70,11 +78,7 @@ final class BugReportController extends AbstractController
     #[Route('/{id}', name: 'app_bug_report_show', methods: ['GET', 'POST'])]
     public function show(Request $request, BugReport $bugReport, EntityManagerInterface $entityManager): Response
     {
-        if (
-            !$this->isGranted('ROLE_ADMIN')
-            && !$this->isGranted('ROLE_DEVELOPER')
-            && $bugReport->getReporter()?->getId() !== $this->getUser()?->getId()
-        ) {
+        if (!$this->canViewBugReport($bugReport)) {
             throw $this->createAccessDeniedException('You cannot view this bug report.');
         }
 
@@ -103,5 +107,37 @@ final class BugReportController extends AbstractController
             'bug_report' => $bugReport,
             'comment_form' => $commentForm,
         ]);
+    }
+
+    #[Route('/{id}/screenshot', name: 'app_bug_report_screenshot', methods: ['GET'])]
+    public function screenshot(BugReport $bugReport, FileUploader $fileUploader): Response
+    {
+        if (!$this->canViewBugReport($bugReport)) {
+            throw $this->createAccessDeniedException('You cannot view this screenshot.');
+        }
+
+        $filename = $bugReport->getScreenshotFilename();
+        if ($filename === null) {
+            throw $this->createNotFoundException('This bug report has no screenshot.');
+        }
+
+        try {
+            $path = $fileUploader->getPath($filename);
+        } catch (FileException) {
+            throw $this->createNotFoundException('Screenshot file is invalid.');
+        }
+
+        if (!is_file($path)) {
+            throw $this->createNotFoundException('Screenshot file was not found.');
+        }
+
+        return $this->file($path, null, ResponseHeaderBag::DISPOSITION_INLINE);
+    }
+
+    private function canViewBugReport(BugReport $bugReport): bool
+    {
+        return $this->isGranted('ROLE_ADMIN')
+            || $this->isGranted('ROLE_DEVELOPER')
+            || $bugReport->getReporter()?->getId() === $this->getUser()?->getId();
     }
 }

@@ -29,6 +29,7 @@
                             <th>Status</th>
                             <th>Reporter</th>
                             <th>Developer</th>
+                            <th>Screenshot</th>
                             <th>Created</th>
                             <th></th>
                         </tr>
@@ -49,6 +50,7 @@
                                 </td>
                                 <td>{{ bug_report.reporter.fullName }}</td>
                                 <td>{{ bug_report.assignedDeveloper ? bug_report.assignedDeveloper.fullName : 'Unassigned' }}</td>
+                                <td>{{ bug_report.screenshotFilename ? 'Yes' : 'No' }}</td>
                                 <td>{{ bug_report.createdAt|date('Y-m-d H:i') }}</td>
                                 <td><a href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">View</a></td>
                             </tr>

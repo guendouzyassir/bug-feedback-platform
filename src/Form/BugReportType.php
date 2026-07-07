@@ -8,9 +8,11 @@ use App\Enum\BugPriority;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class BugReportType extends AbstractType
 {
@@ -35,6 +37,26 @@ class BugReportType extends AbstractType
             ->add('priority', EnumType::class, [
                 'class' => BugPriority::class,
                 'choice_label' => fn (BugPriority $priority): string => $priority->label(),
+            ])
+            ->add('screenshot', FileType::class, [
+                'label' => 'Screenshot',
+                'mapped' => false,
+                'required' => false,
+                'help' => 'Accepted formats: JPG, PNG, WEBP. Maximum size: 2 MB.',
+                'attr' => [
+                    'accept' => '.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp',
+                ],
+                'constraints' => [
+                    new File(
+                        maxSize: '2M',
+                        mimeTypes: [
+                            'image/jpeg',
+                            'image/png',
+                            'image/webp',
+                        ],
+                        mimeTypesMessage: 'Please upload a JPG, PNG, or WEBP screenshot.',
+                    ),
+                ],
             ])
         ;
     }
