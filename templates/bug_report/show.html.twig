@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ bug_report.title }} | Bug Report Platform{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>{{ bug_report.title }}</h1>
+            <p class="muted">{{ bug_report.project.name }} · {{ bug_report.createdAt|date('Y-m-d H:i') }}</p>
+        </div>
+        <a href="{{ path('app_bug_report_index') }}">Back to bugs</a>
+    </div>
+
+    <section class="grid">
+        <article class="metric">
+            Priority
+            <strong>{{ bug_report.priority.label() }}</strong>
+        </article>
+        <article class="metric">
+            Status
+            <strong>{{ bug_report.status.label() }}</strong>
+        </article>
+        <article class="metric">
+            Developer
+            <strong>{{ bug_report.assignedDeveloper ? bug_report.assignedDeveloper.fullName : 'Unassigned' }}</strong>
+        </article>
+    </section>
+
+    <section class="panel stack">
+        <div>
+            <h2>Description</h2>
+            <p>{{ bug_report.description|nl2br }}</p>
+        </div>
+
+        {% if bug_report.stepsToReproduce %}
+            <div>
+                <h2>Steps to Reproduce</h2>
+                <p>{{ bug_report.stepsToReproduce|nl2br }}</p>
+            </div>
+        {% endif %}
+
+        {% if bug_report.expectedResult %}
+            <div>
+                <h2>Expected Result</h2>
+                <p>{{ bug_report.expectedResult|nl2br }}</p>
+            </div>
+        {% endif %}
+
+        {% if bug_report.actualResult %}
+            <div>
+                <h2>Actual Result</h2>
+                <p>{{ bug_report.actualResult|nl2br }}</p>
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}

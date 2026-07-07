@@ -107,6 +107,56 @@
                     width: 100%;
                 }
 
+                .form textarea,
+                .form select {
+                    border: 1px solid var(--line);
+                    border-radius: 6px;
+                    font: inherit;
+                    padding: .7rem .8rem;
+                    width: 100%;
+                }
+
+                .form textarea {
+                    min-height: 8rem;
+                    resize: vertical;
+                }
+
+                .page-header {
+                    align-items: center;
+                    display: flex;
+                    gap: 1rem;
+                    justify-content: space-between;
+                    margin-bottom: 1rem;
+                }
+
+                .stack {
+                    display: grid;
+                    gap: 1rem;
+                }
+
+                .table-wrap {
+                    overflow-x: auto;
+                }
+
+                table {
+                    border-collapse: collapse;
+                    width: 100%;
+                }
+
+                th,
+                td {
+                    border-bottom: 1px solid var(--line);
+                    padding: .75rem;
+                    text-align: left;
+                    vertical-align: top;
+                }
+
+                th {
+                    color: var(--muted);
+                    font-size: .9rem;
+                    font-weight: 700;
+                }
+
                 .button {
                     background: var(--accent);
                     border: 0;
@@ -130,6 +180,11 @@
                     color: var(--danger);
                 }
 
+                .alert-success {
+                    background: #ecfdf3;
+                    color: #027a48;
+                }
+
                 @media (max-width: 640px) {
                     .topbar {
                         align-items: flex-start;
@@ -148,8 +203,10 @@
             <a class="brand" href="{{ path('app_home') }}">Bug Report Platform</a>
             <nav class="nav">
                 {% if app.user %}
+                    <a href="{{ path('app_bug_report_index') }}">Bugs</a>
                     {% if is_granted('ROLE_ADMIN') %}
                         <a href="{{ path('admin_dashboard') }}">Admin</a>
+                        <a href="{{ path('app_admin_project_index') }}">Projects</a>
                     {% endif %}
                     {% if is_granted('ROLE_DEVELOPER') %}
                         <a href="{{ path('developer_dashboard') }}">Developer</a>
@@ -163,6 +220,11 @@
             </nav>
         </header>
         <main class="container">
+            {% for type, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type }}">{{ message }}</div>
+                {% endfor %}
+            {% endfor %}
             {% block body %}{% endblock %}
         </main>
     </body>

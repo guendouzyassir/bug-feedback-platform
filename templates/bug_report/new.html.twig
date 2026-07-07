@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Bug Report | Bug Report Platform{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>New Bug Report</h1>
+            <p class="muted">Describe the issue clearly so the development team can reproduce it.</p>
+        </div>
+        <a href="{{ path('app_bug_report_index') }}">Back to bugs</a>
+    </div>
+
+    <section class="panel">
+        {{ form_start(form, {'attr': {'class': 'form'}}) }}
+            {{ form_row(form.project) }}
+            {{ form_row(form.title) }}
+            {{ form_row(form.description) }}
+            {{ form_row(form.stepsToReproduce) }}
+            {{ form_row(form.expectedResult) }}
+            {{ form_row(form.actualResult) }}
+            {{ form_row(form.priority) }}
+
+            <button class="button">Create Bug Report</button>
+        {{ form_end(form) }}
+    </section>
+{% endblock %}

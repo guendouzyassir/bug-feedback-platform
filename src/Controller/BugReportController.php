@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\BugReport;
+use App\Entity\User;
+use App\Enum\BugStatus;
+use App\Form\BugReportType;
+use App\Repository\BugReportRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+#[IsGranted('ROLE_USER')]
+#[Route('/bugs')]
+final class BugReportController extends AbstractController
+{
+    #[Route(name: 'app_bug_report_index', methods: ['GET'])]
+    public function index(BugReportRepository $bugReportRepository): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $bugReports = $this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_DEVELOPER')
+            ? $bugReportRepository->findBy([], ['createdAt' => 'DESC'])
+            : $bugReportRepository->findBy(['reporter' => $user], ['createdAt' => 'DESC']);
+
+        return $this->render('bug_report/index.html.twig', [
+            'bug_reports' => $bugReports,
+        ]);
+    }
+
+    #[IsGranted('ROLE_CLIENT')]
+    #[Route('/new', name: 'app_bug_report_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $bugReport = new BugReport();
+        $form = $this->createForm(BugReportType::class, $bugReport);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $bugReport
+                ->setReporter($user)
+                ->setStatus(BugStatus::Open);
+
+            $entityManager->persist($bugReport);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Bug report created successfully.');
+
+            return $this->redirectToRoute('app_bug_report_show', ['id' => $bugReport->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('bug_report/new.html.twig', [
+            'bug_report' => $bugReport,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_bug_report_show', methods: ['GET'])]
+    public function show(BugReport $bugReport): Response
+    {
+        if (
+            !$this->isGranted('ROLE_ADMIN')
+            && !$this->isGranted('ROLE_DEVELOPER')
+            && $bugReport->getReporter()?->getId() !== $this->getUser()?->getId()
+        ) {
+            throw $this->createAccessDeniedException('You cannot view this bug report.');
+        }
+
+        return $this->render('bug_report/show.html.twig', [
+            'bug_report' => $bugReport,
+        ]);
+    }
+}
