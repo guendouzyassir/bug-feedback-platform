@@ -22,8 +22,16 @@
                 <dd>{{ bug_report.reporter.fullName }}</dd>
             </div>
             <div>
-                <dt>Created</dt>
+                <dt>Report Date</dt>
                 <dd>{{ bug_report.createdAt|date('Y-m-d H:i') }}</dd>
+            </div>
+            <div>
+                <dt>Open Date</dt>
+                <dd>{{ bug_report.openedAt ? bug_report.openedAt|date('Y-m-d H:i') : 'Not opened yet' }}</dd>
+            </div>
+            <div>
+                <dt>Treatment Date</dt>
+                <dd>{{ bug_report.treatedAt ? bug_report.treatedAt|date('Y-m-d H:i') : 'Not treated yet' }}</dd>
             </div>
         </dl>
 

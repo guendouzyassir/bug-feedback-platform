@@ -108,12 +108,7 @@ class BugReportRepository extends ServiceEntityRepository
 
         $counts = [];
         foreach ($rows as $row) {
-            $status = match (true) {
-                $row['status'] instanceof BugStatus => $row['status']->value,
-                is_object($row['status']) && isset($row['status']->value) => (string) $row['status']->value,
-                default => (string) $row['status'],
-            };
-            $counts[$status] = (int) $row['bugCount'];
+            $counts[$row['status']->value] = (int) $row['bugCount'];
         }
 
         return $counts;

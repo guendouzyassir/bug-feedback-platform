@@ -33,4 +33,17 @@ class FileUploader
 
         return $this->targetDirectory.'/'.$filename;
     }
+
+    public function remove(?string $filename): void
+    {
+        if ($filename === null) {
+            return;
+        }
+
+        $path = $this->getPath($filename);
+
+        if (is_file($path) && !unlink($path)) {
+            throw new FileException('Unable to delete the screenshot file.');
+        }
+    }
 }

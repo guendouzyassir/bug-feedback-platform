@@ -61,6 +61,7 @@ final class BugReportController extends AbstractController
         BugReport $bugReport,
         EntityManagerInterface $entityManager,
         UserRepository $userRepository,
+        FileUploader $fileUploader,
     ): Response {
         $form = $this->createForm(BugManagementType::class, $bugReport, [
             'developers' => $userRepository->findDevelopers(),
@@ -68,6 +69,21 @@ final class BugReportController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($bugReport->getStatus() === BugStatus::Fixed) {
+                $fileUploader->remove($bugReport->getScreenshotFilename());
+                $entityManager->remove($bugReport);
+                $entityManager->flush();
+                $this->addFlash('success', 'Bug was fixed and has been removed.');
+
+                return $this->redirectToRoute('app_bug_report_index', [], Response::HTTP_SEE_OTHER);
+            }
+
+            $bugReport->markOpened();
+
+            if ($bugReport->getStatus() === BugStatus::InProgress) {
+                $bugReport->markTreated();
+            }
+
             $bugReport->touch();
             $entityManager->flush();
 
@@ -83,7 +99,7 @@ final class BugReportController extends AbstractController
     }
 
     #[Route('/{id}/status', name: 'app_bug_report_status', methods: ['POST'])]
-    public function updateStatus(Request $request, BugReport $bugReport, EntityManagerInterface $entityManager): Response
+    public function updateStatus(Request $request, BugReport $bugReport, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
     {
         if (!$this->canUpdateBugStatus($bugReport)) {
             throw $this->createAccessDeniedException('You cannot update this bug report status.');
@@ -93,6 +109,21 @@ final class BugReportController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($bugReport->getStatus() === BugStatus::Fixed) {
+                $fileUploader->remove($bugReport->getScreenshotFilename());
+                $entityManager->remove($bugReport);
+                $entityManager->flush();
+                $this->addFlash('success', 'Bug was fixed and has been removed.');
+
+                return $this->redirectToRoute('app_bug_report_index', [], Response::HTTP_SEE_OTHER);
+            }
+
+            $bugReport->markOpened();
+
+            if ($bugReport->getStatus() === BugStatus::InProgress) {
+                $bugReport->markTreated();
+            }
+
             $entityManager->flush();
             $this->addFlash('success', 'Bug status updated.');
         } else {
@@ -100,6 +131,29 @@ final class BugReportController extends AbstractController
         }
 
         return $this->redirectToRoute('app_bug_report_show', ['id' => $bugReport->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/{id}/delete', name: 'app_bug_report_delete', methods: ['POST'])]
+    public function delete(
+        Request $request,
+        BugReport $bugReport,
+        EntityManagerInterface $entityManager,
+        FileUploader $fileUploader,
+    ): Response {
+        if (!$this->isCsrfTokenValid('delete'.$bugReport->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token. Please try again.');
+
+            return $this->redirectToRoute('app_bug_report_show', ['id' => $bugReport->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        $fileUploader->remove($bugReport->getScreenshotFilename());
+        $entityManager->remove($bugReport);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Bug report deleted successfully.');
+
+        return $this->redirectToRoute('app_bug_report_index', [], Response::HTTP_SEE_OTHER);
     }
 
     #[IsGranted('ROLE_CLIENT')]

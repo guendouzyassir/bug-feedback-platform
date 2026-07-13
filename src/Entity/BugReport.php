@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(name: 'IDX_BUG_REPORT_STATUS', fields: ['status'])]
 #[ORM\Index(name: 'IDX_BUG_REPORT_PRIORITY', fields: ['priority'])]
 #[ORM\Index(name: 'IDX_BUG_REPORT_CREATED_AT', fields: ['createdAt'])]
+#[ORM\Index(name: 'IDX_BUG_REPORT_OPENED_AT', fields: ['openedAt'])]
+#[ORM\Index(name: 'IDX_BUG_REPORT_TREATED_AT', fields: ['treatedAt'])]
 class BugReport
 {
     #[ORM\Id]
@@ -54,6 +56,12 @@ class BugReport
 
     #[ORM\Column]
     private \DateTimeImmutable $updatedAt;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $openedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $treatedAt = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $closedAt = null;
@@ -174,10 +182,16 @@ class BugReport
 
     public function setStatus(BugStatus $status): static
     {
+        $wasClosed = in_array($this->status, [BugStatus::Closed, BugStatus::Rejected], true);
+        $willBeClosed = in_array($status, [BugStatus::Closed, BugStatus::Rejected], true);
+
         $this->status = $status;
-        $this->closedAt = in_array($status, [BugStatus::Closed, BugStatus::Rejected], true)
-            ? new \DateTimeImmutable()
-            : null;
+
+        if ($willBeClosed && !$wasClosed) {
+            $this->closedAt = new \DateTimeImmutable();
+        } elseif (!$willBeClosed) {
+            $this->closedAt = null;
+        }
 
         return $this->touch();
     }
@@ -202,6 +216,48 @@ class BugReport
     public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function getOpenedAt(): ?\DateTimeImmutable
+    {
+        return $this->openedAt;
+    }
+
+    public function setOpenedAt(?\DateTimeImmutable $openedAt): static
+    {
+        $this->openedAt = $openedAt;
+
+        return $this;
+    }
+
+    public function markOpened(): static
+    {
+        if ($this->openedAt === null) {
+            $this->openedAt = new \DateTimeImmutable();
+        }
+
+        return $this;
+    }
+
+    public function getTreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->treatedAt;
+    }
+
+    public function setTreatedAt(?\DateTimeImmutable $treatedAt): static
+    {
+        $this->treatedAt = $treatedAt;
+
+        return $this;
+    }
+
+    public function markTreated(): static
+    {
+        if ($this->treatedAt === null) {
+            $this->treatedAt = new \DateTimeImmutable();
+        }
+
+        return $this;
     }
 
     public function getClosedAt(): ?\DateTimeImmutable

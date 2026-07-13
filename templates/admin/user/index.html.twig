@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Users | Bug Report Platform{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Users</h1>
+            <p class="muted">Create and manage accounts for admins, developers, clients, and testers.</p>
+        </div>
+        <div class="actions">
+            <a class="button" href="{{ path('app_admin_user_new') }}">New User</a>
+            <a class="button button-secondary" href="{{ path('admin_dashboard') }}">Dashboard</a>
+        </div>
+    </div>
+
+    <section class="panel">
+        {% if users is empty %}
+            <p class="muted">No user accounts found.</p>
+        {% else %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            {% set roles = user.roles %}
+                            <tr>
+                                <td>{{ user.fullName }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% if 'ROLE_ADMIN' in roles %}
+                                        Admin
+                                    {% elseif 'ROLE_DEVELOPER' in roles %}
+                                        Developer
+                                    {% elseif 'ROLE_CLIENT' in roles %}
+                                        Client/Tester
+                                    {% else %}
+                                        User
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.isActive ? 'Active' : 'Inactive' }}</td>
+                                <td>{{ user.createdAt|date('Y-m-d H:i') }}</td>
+                                <td>
+                                    <div class="actions">
+                                        <a href="{{ path('app_admin_user_edit', {'id': user.id}) }}">Edit</a>
+                                        {% if app.user and app.user.id != user.id %}
+                                            {% include 'admin/user/_delete_form.html.twig' with {user: user} %}
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}

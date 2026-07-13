@@ -18,7 +18,14 @@
         </article>
     </section>
 
-    <section class="panel">
-        <a href="{{ path('app_bug_report_index') }}">View my bug reports</a>
+    <section class="quick-actions">
+        <a class="quick-action" href="{{ path('app_bug_report_new') }}">
+            <strong>Report New Bug</strong>
+            <span class="muted">Send details, priority, and screenshot.</span>
+        </a>
+        <a class="quick-action" href="{{ path('app_bug_report_index') }}">
+            <strong>My Bug Reports</strong>
+            <span class="muted">Follow status and developer comments.</span>
+        </a>
     </section>
 {% endblock %}

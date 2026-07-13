@@ -9,9 +9,15 @@
             <p class="muted">{{ scope_label }} · {{ bug_reports|length }} total</p>
         </div>
 
-        {% if is_granted('ROLE_CLIENT') %}
-            <a class="button" href="{{ path('app_bug_report_new') }}">New Bug Report</a>
-        {% endif %}
+        <div class="actions">
+            {% if is_granted('ROLE_CLIENT') %}
+                <a class="button" href="{{ path('app_bug_report_new') }}">New Bug Report</a>
+            {% endif %}
+            {% if is_granted('ROLE_ADMIN') %}
+                <a class="button button-secondary" href="{{ path('admin_dashboard') }}">Dashboard</a>
+                <a class="button button-secondary" href="{{ path('app_admin_project_index') }}">Projects</a>
+            {% endif %}
+        </div>
     </div>
 
     <section class="panel">
@@ -81,56 +87,61 @@
     </section>
 
     <section class="panel">
-        {% if bug_reports is empty %}
-            <p class="muted">No bug reports found.</p>
-        {% else %}
-            <div class="table-wrap">
-                <table>
-                    <thead>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Project</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Reporter</th>
+                        <th>Developer</th>
+                        <th>Screenshot</th>
+                        <th>Report Date</th>
+                        <th>Open Date</th>
+                        <th>Treatment Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bug_report in bug_reports %}
                         <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Project</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Reporter</th>
-                            <th>Developer</th>
-                            <th>Screenshot</th>
-                            <th>Created</th>
-                            <th>Actions</th>
+                            <td>#{{ bug_report.id }}</td>
+                            <td>
+                                <a href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">{{ bug_report.title }}</a>
+                            </td>
+                            <td>{{ bug_report.project.name }}</td>
+                            <td>
+                                <span class="badge badge-priority-{{ bug_report.priority.value }}">{{ bug_report.priority.label() }}</span>
+                            </td>
+                            <td>
+                                <span class="badge badge-status-{{ bug_report.status.value }}">{{ bug_report.status.label() }}</span>
+                            </td>
+                            <td>{{ bug_report.reporter.fullName }}</td>
+                            <td>{{ bug_report.assignedDeveloper ? bug_report.assignedDeveloper.fullName : 'Unassigned' }}</td>
+                            <td>{{ bug_report.screenshotFilename ? 'Yes' : 'No' }}</td>
+                            <td>{{ bug_report.createdAt|date('Y-m-d H:i') }}</td>
+                            <td>{{ bug_report.openedAt ? bug_report.openedAt|date('Y-m-d H:i') : 'Not opened' }}</td>
+                            <td>{{ bug_report.treatedAt ? bug_report.treatedAt|date('Y-m-d H:i') : 'Not treated' }}</td>
+                            <td>
+                                <div class="actions">
+                                    <a href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">View</a>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <a href="{{ path('app_bug_report_manage', {'id': bug_report.id}) }}">Manage</a>
+                                        {% include 'bug_report/_delete_form.html.twig' with {bug_report: bug_report} %}
+                                    {% endif %}
+                                </div>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for bug_report in bug_reports %}
-                            <tr>
-                                <td>#{{ bug_report.id }}</td>
-                                <td>
-                                    <a href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">{{ bug_report.title }}</a>
-                                </td>
-                                <td>{{ bug_report.project.name }}</td>
-                                <td>
-                                    <span class="badge badge-priority-{{ bug_report.priority.value }}">{{ bug_report.priority.label() }}</span>
-                                </td>
-                                <td>
-                                    <span class="badge badge-status-{{ bug_report.status.value }}">{{ bug_report.status.label() }}</span>
-                                </td>
-                                <td>{{ bug_report.reporter.fullName }}</td>
-                                <td>{{ bug_report.assignedDeveloper ? bug_report.assignedDeveloper.fullName : 'Unassigned' }}</td>
-                                <td>{{ bug_report.screenshotFilename ? 'Yes' : 'No' }}</td>
-                                <td>{{ bug_report.createdAt|date('Y-m-d H:i') }}</td>
-                                <td>
-                                    <div class="actions">
-                                        <a href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">View</a>
-                                        {% if is_granted('ROLE_ADMIN') %}
-                                            <a href="{{ path('app_bug_report_manage', {'id': bug_report.id}) }}">Manage</a>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endif %}
+                    {% else %}
+                        <tr>
+                            <td colspan="12" class="muted">No bug reports found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </section>
 {% endblock %}

@@ -1,0 +1,4 @@
+<form method="post" action="{{ path('app_bug_report_delete', {'id': bug_report.id}) }}" onsubmit="return confirm('Delete this bug report? All comments will also be removed.');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ bug_report.id) }}">
+    <button class="button button-danger">Delete Bug</button>
+</form>

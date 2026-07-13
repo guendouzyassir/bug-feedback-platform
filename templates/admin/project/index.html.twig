@@ -8,7 +8,11 @@
             <h1>Projects</h1>
             <p class="muted">Manage the web and mobile applications that can receive bug reports.</p>
         </div>
-        <a class="button" href="{{ path('app_admin_project_new') }}">New Project</a>
+        <div class="actions">
+            <a class="button" href="{{ path('app_admin_project_new') }}">New Project</a>
+            <a class="button button-secondary" href="{{ path('admin_dashboard') }}">Dashboard</a>
+            <a class="button button-secondary" href="{{ path('app_bug_report_index') }}">Bugs</a>
+        </div>
     </div>
 
     <section class="panel">

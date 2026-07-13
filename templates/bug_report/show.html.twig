@@ -6,11 +6,12 @@
     <div class="page-header">
         <div>
             <h1>{{ bug_report.title }}</h1>
-            <p class="muted">#{{ bug_report.id }} · {{ bug_report.project.name }} · {{ bug_report.createdAt|date('Y-m-d H:i') }}</p>
+            <p class="muted">#{{ bug_report.id }} · {{ bug_report.project.name }} · Submitted {{ bug_report.createdAt|date('Y-m-d H:i') }}</p>
         </div>
         <div class="actions">
             {% if can_manage %}
                 <a class="button" href="{{ path('app_bug_report_manage', {'id': bug_report.id}) }}">Manage</a>
+                {% include 'bug_report/_delete_form.html.twig' with {bug_report: bug_report} %}
             {% endif %}
             <a class="button button-secondary" href="{{ path('app_bug_report_index') }}">Back to Bugs</a>
         </div>
@@ -76,12 +77,16 @@
         <h2>Timeline</h2>
         <dl class="meta-list">
             <div>
-                <dt>Created</dt>
+                <dt>Report Date</dt>
                 <dd>{{ bug_report.createdAt|date('Y-m-d H:i') }}</dd>
             </div>
             <div>
-                <dt>Last Updated</dt>
-                <dd>{{ bug_report.updatedAt|date('Y-m-d H:i') }}</dd>
+                <dt>Open Date</dt>
+                <dd>{{ bug_report.openedAt ? bug_report.openedAt|date('Y-m-d H:i') : 'Not opened yet' }}</dd>
+            </div>
+            <div>
+                <dt>Treatment Date</dt>
+                <dd>{{ bug_report.treatedAt ? bug_report.treatedAt|date('Y-m-d H:i') : 'Not treated yet' }}</dd>
             </div>
             {% if bug_report.closedAt %}
                 <div>

@@ -3,35 +3,34 @@
 {% block title %}Login | Bug Report Platform{% endblock %}
 
 {% block body %}
-    <section class="panel" style="max-width: 420px; margin: 2rem auto;">
-        <h1>Login</h1>
-        <p class="muted">Sign in with a demo account to test each workflow.</p>
+    <section class="auth-shell">
+        <div class="auth-panel">
+            <div class="auth-mark">
+                <span class="auth-dot"></span>
+                Bug Report Platform
+            </div>
+            <h1>Login</h1>
+            <p class="muted">Internal access for admins, developers, and testers.</p>
 
-        {% if error %}
-            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-        {% endif %}
+            {% if error %}
+                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
 
-        <form method="post" class="form">
-            <label>
-                Email
-                <input type="email" value="{{ last_username }}" name="email" autocomplete="email" required autofocus>
-            </label>
+            <form method="post" class="form auth-form">
+                <label>
+                    Email
+                    <input type="email" value="{{ last_username }}" name="email" autocomplete="email" required autofocus>
+                </label>
 
-            <label>
-                Password
-                <input type="password" name="password" autocomplete="current-password" required>
-            </label>
+                <label>
+                    Password
+                    <input type="password" name="password" autocomplete="current-password" required>
+                </label>
 
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-            <button class="button" type="submit">Sign in</button>
-        </form>
-
-        <p class="muted">
-            Admin: admin@example.com<br>
-            Developer: developer@example.com<br>
-            Client: client@example.com<br>
-            Password: password123
-        </p>
+                <button class="button auth-button" type="submit">Sign in</button>
+            </form>
+        </div>
     </section>
 {% endblock %}

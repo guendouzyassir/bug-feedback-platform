@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\BugReport;
 use App\Entity\Project;
 use App\Enum\BugPriority;
+use App\Repository\ProjectRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
@@ -22,6 +23,10 @@ class BugReportType extends AbstractType
             ->add('project', EntityType::class, [
                 'class' => Project::class,
                 'choice_label' => 'name',
+                'query_builder' => fn (ProjectRepository $repo) => $repo->createQueryBuilder('p')
+                    ->where('p.isActive = :active')
+                    ->setParameter('active', true)
+                    ->orderBy('p.name', 'ASC'),
             ])
             ->add('title')
             ->add('description', TextareaType::class)
