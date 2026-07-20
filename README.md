@@ -194,3 +194,4 @@ templates/
 **Built as an internship project**
 
 </div>
+"# bug-feedback-platform" 
