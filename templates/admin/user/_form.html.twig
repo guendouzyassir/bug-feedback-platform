@@ -5,5 +5,14 @@
     {{ form_row(form.isActive) }}
     {{ form_row(form.plainPassword) }}
 
+    {% if form.clientProfile is defined %}
+        <fieldset class="form-fieldset">
+            <legend>Client Profile</legend>
+            {{ form_row(form.clientProfile.companyName) }}
+            {{ form_row(form.clientProfile.phoneNumber) }}
+            {{ form_row(form.clientProfile.companyAddress) }}
+        </fieldset>
+    {% endif %}
+
     <button class="button">{{ button_label|default('Save User') }}</button>
 {{ form_end(form) }}

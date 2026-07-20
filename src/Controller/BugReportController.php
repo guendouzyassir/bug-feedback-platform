@@ -78,13 +78,13 @@ final class BugReportController extends AbstractController
                 return $this->redirectToRoute('app_bug_report_index', [], Response::HTTP_SEE_OTHER);
             }
 
-            $bugReport->markOpened();
-
-            if ($bugReport->getStatus() === BugStatus::InProgress) {
-                $bugReport->markTreated();
+            if ($bugReport->getOpenedAt() === null) {
+                $bugReport->markOpened();
             }
 
-            $bugReport->touch();
+            if ($bugReport->getStatus() === BugStatus::InProgress && $bugReport->getTreatedAt() === null) {
+                $bugReport->markTreated();
+            }
             $entityManager->flush();
 
             $this->addFlash('success', 'Bug report management details updated.');
@@ -118,9 +118,11 @@ final class BugReportController extends AbstractController
                 return $this->redirectToRoute('app_bug_report_index', [], Response::HTTP_SEE_OTHER);
             }
 
-            $bugReport->markOpened();
+            if ($bugReport->getOpenedAt() === null) {
+                $bugReport->markOpened();
+            }
 
-            if ($bugReport->getStatus() === BugStatus::InProgress) {
+            if ($bugReport->getStatus() === BugStatus::InProgress && $bugReport->getTreatedAt() === null) {
                 $bugReport->markTreated();
             }
 

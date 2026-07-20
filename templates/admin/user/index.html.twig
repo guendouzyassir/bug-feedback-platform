@@ -43,6 +43,9 @@
                                         Developer
                                     {% elseif 'ROLE_CLIENT' in roles %}
                                         Client/Tester
+                                        {% if user.clientProfile %}
+                                            <br><small class="muted">{{ user.clientProfile.companyName }}</small>
+                                        {% endif %}
                                     {% else %}
                                         User
                                     {% endif %}

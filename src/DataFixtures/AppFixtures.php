@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\ClientProfile;
 use App\Entity\Project;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -23,6 +24,11 @@ class AppFixtures extends Fixture
         $manager->persist($developer);
 
         $client = $this->createUser('client@example.com', 'Test Client', ['ROLE_CLIENT'], 'password123');
+        $clientProfile = (new ClientProfile())
+            ->setCompanyName('Acme Corp')
+            ->setPhoneNumber('+213 555 123 456')
+            ->setCompanyAddress('123 Main Street, Batna, Algeria');
+        $client->setClientProfile($clientProfile);
         $manager->persist($client);
 
         $projects = [

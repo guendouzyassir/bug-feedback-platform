@@ -2,11 +2,14 @@
 
 namespace App\Form;
 
+use App\Entity\ClientProfile;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -40,6 +43,42 @@ class UserType extends AbstractType
                 ],
             ])
         ;
+
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+            /** @var User|null $user */
+            $user = $event->getData();
+            $form = $event->getForm();
+
+            if ($user !== null && $user->getClientProfile() === null && $options['current_role'] === 'ROLE_CLIENT') {
+                $user->setClientProfile(new ClientProfile());
+            }
+
+            if ($options['current_role'] === 'ROLE_CLIENT') {
+                $form->add('clientProfile', ClientProfileType::class, [
+                    'label' => 'Client Profile',
+                ]);
+            }
+        });
+
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
+            /** @var User|null $user */
+            $user = $event->getData();
+            $form = $event->getForm();
+
+            if ($user === null) {
+                return;
+            }
+
+            $role = $form->get('role')->getData();
+
+            if ($role === 'ROLE_CLIENT' && $user->getClientProfile() === null) {
+                $user->setClientProfile(new ClientProfile());
+            }
+
+            if ($role !== 'ROLE_CLIENT' && $user->getClientProfile() !== null) {
+                $user->setClientProfile(null);
+            }
+        });
     }
 
     public function configureOptions(OptionsResolver $resolver): void

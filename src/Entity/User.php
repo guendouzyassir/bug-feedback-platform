@@ -63,6 +63,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: BugComment::class)]
     private Collection $comments;
 
+    #[ORM\OneToOne(targetEntity: ClientProfile::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?ClientProfile $clientProfile = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -180,5 +183,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getComments(): Collection
     {
         return $this->comments;
+    }
+
+    public function getClientProfile(): ?ClientProfile
+    {
+        return $this->clientProfile;
+    }
+
+    public function setClientProfile(?ClientProfile $clientProfile): static
+    {
+        if ($clientProfile === $this->clientProfile) {
+            return $this;
+        }
+
+        $this->clientProfile = $clientProfile;
+
+        if ($clientProfile !== null && $clientProfile->getUser() !== $this) {
+            $clientProfile->setUser($this);
+        }
+
+        return $this;
     }
 }

@@ -77,7 +77,7 @@ final class ProjectController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_admin_project_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'app_admin_project_delete', methods: ['POST'])]
     public function delete(
         Request $request,
         Project $project,

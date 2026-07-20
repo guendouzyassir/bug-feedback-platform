@@ -2,7 +2,6 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\BugComment;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
@@ -127,6 +126,13 @@ final class UserController extends AbstractController
 
     private function applyRoleFromForm(User $user, string $role): void
     {
+        $currentRole = $this->primaryRole($user);
+
+        // Remove client profile if role is changing away from client
+        if ($currentRole === 'ROLE_CLIENT' && $role !== 'ROLE_CLIENT') {
+            $user->setClientProfile(null);
+        }
+
         $user->setRoles([$role]);
     }
 
