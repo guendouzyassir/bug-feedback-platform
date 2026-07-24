@@ -22,5 +22,12 @@ class UserChecker implements UserCheckerInterface
 
     public function checkPostAuth(UserInterface $user): void
     {
+        if (!$user instanceof User) {
+            return;
+        }
+
+        if (!$user->isActive()) {
+            throw new CustomUserMessageAccountStatusException('This account has been deactivated. Please contact an administrator.');
+        }
     }
 }

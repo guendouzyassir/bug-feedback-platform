@@ -23,6 +23,7 @@ class DashboardController extends AbstractController
         $statusCounts = $bugReportRepository->countByStatus();
         $developerStats = $bugReportRepository->countResolvedByDeveloper();
         $timeSpentPerBug = $bugReportRepository->findTimeSpentPerBug();
+        $recentActivity = $bugReportRepository->findRecentActivity(10);
 
         return $this->render('admin/dashboard.html.twig', [
             'userCount' => $userRepository->count([]),
@@ -35,6 +36,7 @@ class DashboardController extends AbstractController
             'unassignedBugCount' => $bugReportRepository->count(['assignedDeveloper' => null]),
             'developerStats' => $developerStats,
             'timeSpentPerBug' => $timeSpentPerBug,
+            'recentActivity' => $recentActivity,
         ]);
     }
 }

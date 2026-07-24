@@ -17,6 +17,7 @@ class ClientProfileType extends AbstractType
         $builder
             ->add('companyName', TextType::class, [
                 'label' => 'Company Name',
+                'required' => false,
                 'attr' => ['placeholder' => 'e.g. Acme Corp'],
             ])
             ->add('phoneNumber', TelType::class, [

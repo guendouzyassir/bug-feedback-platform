@@ -1,7 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Users | FixFlow{% endblock %}
-{% block topbar_title %}Users{% endblock %}
+{% set roleLabels = {'ROLE_ADMIN': 'Admins', 'ROLE_DEVELOPER': 'Developers', 'ROLE_CLIENT': 'Clients'} %}
+{% set currentLabel = activeRole is defined and activeRole ? (roleLabels[activeRole] ?? 'Users') : 'All Users' %}
+
+{% block title %}{{ currentLabel }} | FixFlow{% endblock %}
+{% block topbar_title %}{{ currentLabel }}{% endblock %}
 
 {% block body %}
     <div class="page-header">

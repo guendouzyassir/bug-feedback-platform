@@ -63,7 +63,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: BugComment::class)]
     private Collection $comments;
 
-    #[ORM\OneToOne(targetEntity: ClientProfile::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: ClientProfile::class, mappedBy: 'user', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private ?ClientProfile $clientProfile = null;
 
     /**

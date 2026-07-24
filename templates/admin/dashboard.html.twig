@@ -1,180 +1,273 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Admin Dashboard | FixFlow{% endblock %}
-{% block topbar_title %}Admin Dashboard{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
 
 {% block body %}
-    <div class="page-header">
-        <div>
-            <p class="muted">Project, bug, and workflow overview.</p>
+
+    {# ── Welcome Hero ── #}
+    <section class="dash-welcome">
+        <div class="dash-welcome-content">
+            <h1 class="dash-welcome-title">Welcome back, Admin</h1>
+            <p class="dash-welcome-sub">Here's what's happening across your projects and bug reports today.</p>
         </div>
-        <div class="actions">
-            <a class="button" href="{{ path('app_bug_report_index') }}">View Bugs</a>
-            <a class="button button-secondary" href="{{ path('app_admin_project_index') }}">Projects</a>
-            <a class="button button-secondary" href="{{ path('app_admin_user_index') }}">Users</a>
+        <div class="dash-welcome-actions">
+            <a class="button" href="{{ path('app_bug_report_new') }}">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="15" height="15"><path d="M12 4v16m8-8H4"/></svg>
+                New Bug
+            </a>
+            <a class="button button-secondary" href="{{ path('app_admin_project_new') }}">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="15" height="15"><path d="M12 4v16m8-8H4"/></svg>
+                New Project
+            </a>
         </div>
+    </section>
+
+    {# ── KPI Overview ── #}
+    <section class="dash-kpi-row">
+        <a class="dash-kpi" href="{{ path('app_admin_user_index') }}">
+            <div class="dash-kpi-icon dash-kpi-icon--accent">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <div class="dash-kpi-data">
+                <span class="dash-kpi-value">{{ userCount }}</span>
+                <span class="dash-kpi-label">Total Users</span>
+            </div>
+        </a>
+        <a class="dash-kpi" href="{{ path('app_admin_project_index') }}">
+            <div class="dash-kpi-icon dash-kpi-icon--purple">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+            </div>
+            <div class="dash-kpi-data">
+                <span class="dash-kpi-value">{{ projectCount }}</span>
+                <span class="dash-kpi-label">Projects</span>
+            </div>
+        </a>
+        <a class="dash-kpi" href="{{ path('app_bug_report_index') }}">
+            <div class="dash-kpi-icon dash-kpi-icon--info">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="dash-kpi-data">
+                <span class="dash-kpi-value">{{ bugCount }}</span>
+                <span class="dash-kpi-label">Bug Reports</span>
+            </div>
+        </a>
+    </section>
+
+    {# ── Bug Status Breakdown ── #}
+    <section class="dash-status-grid">
+        <div class="dash-status-card">
+            <div class="dash-status-dot dash-status-dot--open"></div>
+            <div class="dash-status-info">
+                <span class="dash-status-count">{{ openBugCount }}</span>
+                <span class="dash-status-label">Open</span>
+            </div>
+        </div>
+        <div class="dash-status-card">
+            <div class="dash-status-dot dash-status-dot--progress"></div>
+            <div class="dash-status-info">
+                <span class="dash-status-count">{{ inProgressBugCount }}</span>
+                <span class="dash-status-label">In Progress</span>
+            </div>
+        </div>
+        <div class="dash-status-card">
+            <div class="dash-status-dot dash-status-dot--fixed"></div>
+            <div class="dash-status-info">
+                <span class="dash-status-count">{{ fixedBugCount }}</span>
+                <span class="dash-status-label">Fixed</span>
+            </div>
+        </div>
+        <div class="dash-status-card">
+            <div class="dash-status-dot dash-status-dot--critical"></div>
+            <div class="dash-status-info">
+                <span class="dash-status-count">{{ criticalBugCount }}</span>
+                <span class="dash-status-label">Critical</span>
+            </div>
+        </div>
+        <div class="dash-status-card">
+            <div class="dash-status-dot dash-status-dot--unassigned"></div>
+            <div class="dash-status-info">
+                <span class="dash-status-count">{{ unassignedBugCount }}</span>
+                <span class="dash-status-label">Unassigned</span>
+            </div>
+        </div>
+    </section>
+
+    {# ── Quick Actions ── #}
+    <h2 class="section-title">Quick Actions</h2>
+    <section class="dash-actions-grid">
+        <a class="dash-action" href="{{ path('app_admin_project_new') }}">
+            <div class="dash-action-icon">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/><path d="M12 11v6m-3-3h6"/></svg>
+            </div>
+            <div class="dash-action-text">
+                <strong>New Project</strong>
+                <span>Create a new project</span>
+            </div>
+        </a>
+        <a class="dash-action" href="{{ path('app_admin_project_index') }}">
+            <div class="dash-action-icon">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+            </div>
+            <div class="dash-action-text">
+                <strong>Manage Projects</strong>
+                <span>Edit details and status</span>
+            </div>
+        </a>
+        <a class="dash-action" href="{{ path('app_bug_report_index') }}">
+            <div class="dash-action-icon">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="dash-action-text">
+                <strong>Manage Bugs</strong>
+                <span>Assign and update status</span>
+            </div>
+        </a>
+        <a class="dash-action" href="{{ path('app_bug_report_new') }}">
+            <div class="dash-action-icon">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+            </div>
+            <div class="dash-action-text">
+                <strong>New Bug Report</strong>
+                <span>File a bug during testing</span>
+            </div>
+        </a>
+        <a class="dash-action" href="{{ path('app_admin_user_new') }}">
+            <div class="dash-action-icon">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6m3-3h-6"/></svg>
+            </div>
+            <div class="dash-action-text">
+                <strong>New User</strong>
+                <span>Create team account</span>
+            </div>
+        </a>
+        <a class="dash-action" href="{{ path('app_admin_user_index') }}">
+            <div class="dash-action-icon">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <div class="dash-action-text">
+                <strong>Manage Users</strong>
+                <span>Roles, status, and access</span>
+            </div>
+        </a>
+    </section>
+
+    {# ── Developer Performance + Time Tracking side by side ── #}
+    <div class="dash-two-col">
+
+        {# Developer Performance #}
+        <section class="panel dash-panel">
+            <h2 class="dash-panel-title">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" width="16" height="16"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                Developer Performance
+            </h2>
+            {% if developerStats is empty %}
+                <div class="dash-empty">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="28" height="28"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <p>No resolved bugs yet</p>
+                    <span>Developer stats will appear here once bugs are resolved.</span>
+                </div>
+            {% else %}
+                <div class="dash-dev-list">
+                    {% set maxCount = developerStats|first.count %}
+                    {% for dev in developerStats %}
+                        <div class="dash-dev-row">
+                            <div class="dash-dev-avatar">{{ dev.fullName|slice(0,1) }}</div>
+                            <div class="dash-dev-info">
+                                <div class="dash-dev-header">
+                                    <strong>{{ dev.fullName }}</strong>
+                                    <span class="dash-dev-count">{{ dev.count }} resolved</span>
+                                </div>
+                                <div class="dash-dev-bar">
+                                    <div class="dash-dev-bar-fill" style="width:{{ (dev.count / maxCount * 100)|round }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </section>
+
+        {# Time Tracking #}
+        <section class="panel dash-panel">
+            <h2 class="dash-panel-title">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                Time Tracking
+            </h2>
+            {% if timeSpentPerBug is empty %}
+                <div class="dash-empty">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="28" height="28"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    <p>No time tracking data yet</p>
+                    <span>Resolution times will appear here once bugs are closed.</span>
+                </div>
+            {% else %}
+                <div class="dash-time-list">
+                    {% for entry in timeSpentPerBug|slice(0, 8) %}
+                        <a class="dash-time-row" href="{{ path('app_bug_report_show', {'id': entry.bugId}) }}">
+                            <div class="dash-time-main">
+                                <span class="dash-time-id">#{{ entry.bugId }}</span>
+                                <span class="dash-time-title">{{ entry.title }}</span>
+                            </div>
+                            <div class="dash-time-meta">
+                                {% if entry.timeSpentHours is not null %}
+                                    {% set totalMinutes = (entry.timeSpentHours * 60)|round %}
+                                    {% set h = (totalMinutes / 60)|round(0, 'floor') %}
+                                    {% set m = totalMinutes % 60 %}
+                                    <span class="dash-time-badge">
+                                        {% if h > 0 and m > 0 %}{{ h }}h {{ m }}m{% elseif h > 0 %}{{ h }}h{% else %}{{ m }}m{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="dash-time-badge dash-time-badge--none">-</span>
+                                {% endif %}
+                                {% if entry.closedAt %}
+                                    <span class="dash-time-dot dash-time-dot--closed"></span>
+                                {% elseif entry.treatedAt %}
+                                    <span class="dash-time-dot dash-time-dot--progress"></span>
+                                {% else %}
+                                    <span class="dash-time-dot dash-time-dot--open"></span>
+                                {% endif %}
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </section>
+
     </div>
 
-    <section class="quick-actions">
-        <a class="quick-action" href="{{ path('app_admin_project_new') }}">
-            <strong>New Project</strong>
-            <span class="muted">Add a web, mobile, or API project.</span>
-        </a>
-        <a class="quick-action" href="{{ path('app_admin_project_index') }}">
-            <strong>Manage Projects</strong>
-            <span class="muted">Edit project details and status.</span>
-        </a>
-        <a class="quick-action" href="{{ path('app_bug_report_index') }}">
-            <strong>Manage Bugs</strong>
-            <span class="muted">Assign developers and update status.</span>
-        </a>
-        <a class="quick-action" href="{{ path('app_bug_report_new') }}">
-            <strong>New Bug Report</strong>
-            <span class="muted">Create a report during testing.</span>
-        </a>
-        <a class="quick-action" href="{{ path('app_admin_user_new') }}">
-            <strong>New User</strong>
-            <span class="muted">Create employee or client accounts.</span>
-        </a>
-        <a class="quick-action" href="{{ path('app_admin_user_index') }}">
-            <strong>Manage Users</strong>
-            <span class="muted">Edit roles, status, and passwords.</span>
-        </a>
-    </section>
-
-    <section class="grid">
-        <article class="metric">
-            <div class="metric-label">Users</div>
-            <span class="metric-value">{{ userCount }}</span>
-        </article>
-        <article class="metric">
-            <div class="metric-label">Projects</div>
-            <span class="metric-value">{{ projectCount }}</span>
-        </article>
-        <article class="metric">
-            <div class="metric-label">Bug Reports</div>
-            <span class="metric-value">{{ bugCount }}</span>
-        </article>
-        <article class="metric">
-            <div class="metric-label">Open</div>
-            <span class="metric-value">{{ openBugCount }}</span>
-        </article>
-        <article class="metric">
-            <div class="metric-label">In Progress</div>
-            <span class="metric-value">{{ inProgressBugCount }}</span>
-        </article>
-        <article class="metric">
-            <div class="metric-label">Fixed</div>
-            <span class="metric-value">{{ fixedBugCount }}</span>
-        </article>
-        <article class="metric">
-            <div class="metric-label">Critical</div>
-            <span class="metric-value">{{ criticalBugCount }}</span>
-        </article>
-        <article class="metric">
-            <div class="metric-label">Unassigned</div>
-            <span class="metric-value">{{ unassignedBugCount }}</span>
-        </article>
-    </section>
-
-    <h2 class="section-title">Developer Performance</h2>
-
-    <section class="stat-card" style="margin-bottom: 1.25rem;">
-        <h2>Bugs Resolved Per Developer</h2>
-        {% if developerStats is empty %}
-            <div class="empty-state" style="padding: 1.5rem;">
-                <p class="muted">No resolved bugs yet.</p>
+    {# ── Recent Activity ── #}
+    <h2 class="section-title">Recent Activity</h2>
+    <section class="panel dash-panel">
+        {% if recentActivity is empty %}
+            <div class="dash-empty">
+                <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="28" height="28"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <p>No recent activity</p>
+                <span>Activity updates will appear here as bugs are reported and resolved.</span>
             </div>
         {% else %}
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Developer</th>
-                            <th>Bugs Resolved</th>
-                            <th>Share</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% set maxCount = developerStats|first.count %}
-                        {% for dev in developerStats %}
-                            <tr>
-                                <td><strong>{{ dev.fullName }}</strong></td>
-                                <td>
-                                    <span class="metric-value" style="font-size:1.1rem; margin:0;">{{ dev.count }}</span>
-                                </td>
-                                <td>
-                                    <div style="display:flex;align-items:center;gap:.6rem;">
-                                        <div style="flex:1;height:6px;background:var(--bg-subtle);border-radius:3px;overflow:hidden;min-width:60px;">
-                                            <div style="height:100%;width:{{ (dev.count / maxCount * 100)|round }}%;background:linear-gradient(90deg,var(--accent),var(--purple));border-radius:3px;transition:width .3s ease;"></div>
-                                        </div>
-                                        <span class="muted" style="font-size:.75rem;white-space:nowrap;">{{ ((dev.count / bugCount) * 100)|round }}%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="dash-time-list">
+                {% for entry in recentActivity %}
+                    <a class="dash-time-row" href="{{ path('app_bug_report_show', {'id': entry.id}) }}">
+                        <div class="dash-time-main">
+                            <span class="dash-time-id">#{{ entry.id }}</span>
+                            <span class="dash-time-title">{{ entry.title }}</span>
+                        </div>
+                        <div class="dash-time-meta">
+                            <span class="dash-time-badge">{{ entry.projectName }}</span>
+                            {% if entry.status == 'open' %}
+                                <span class="dash-time-dot dash-time-dot--open"></span>
+                            {% elseif entry.status == 'in_progress' %}
+                                <span class="dash-time-dot dash-time-dot--progress"></span>
+                            {% elseif entry.status == 'fixed' or entry.status == 'closed' %}
+                                <span class="dash-time-dot dash-time-dot--closed"></span>
+                            {% else %}
+                                <span class="dash-time-dot dash-time-dot--open"></span>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% endfor %}
             </div>
         {% endif %}
     </section>
 
-    <h2 class="section-title">Time Tracking</h2>
-
-    <section class="stat-card" style="margin-top: 1.25rem;">
-        <h2>Time Spent Per Bug</h2>
-        {% if timeSpentPerBug is empty %}
-            <div class="empty-state" style="padding: 1.5rem;">
-                <p class="muted">No time tracking data available yet.</p>
-            </div>
-        {% else %}
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Bug</th>
-                            <th>Developer</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Treated</th>
-                            <th>Closed</th>
-                            <th>Time Spent</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for entry in timeSpentPerBug %}
-                            <tr>
-                                <td>
-                                    <a href="{{ path('app_bug_report_show', {'id': entry.bugId}) }}">#{{ entry.bugId }} {{ entry.title }}</a>
-                                </td>
-                                <td>{{ entry.developerName ?: 'Unassigned' }}</td>
-                                <td>
-                                    {% if entry.closedAt %}
-                                        <span class="badge badge-status-closed"><span class="badge-dot"></span>Closed</span>
-                                    {% elseif entry.treatedAt %}
-                                        <span class="badge badge-status-in_progress"><span class="badge-dot"></span>In Progress</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ entry.createdAt|date('Y-m-d') }}</td>
-                                <td>{{ entry.treatedAt ? entry.treatedAt|date('Y-m-d') : '-' }}</td>
-                                <td>{{ entry.closedAt ? entry.closedAt|date('Y-m-d') : '-' }}</td>
-                                <td>
-                                    {% if entry.timeSpentHours is not null %}
-                                        {% set totalMinutes = (entry.timeSpentHours * 60)|round %}
-                                        {% set h = (totalMinutes / 60)|round(0, 'floor') %}
-                                        {% set m = totalMinutes % 60 %}
-                                        <span class="badge" style="background:var(--accent-light);color:var(--accent);font-weight:650;">
-                                            {% if h > 0 and m > 0 %}{{ h }}h {{ m }}m{% elseif h > 0 %}{{ h }}h{% else %}{{ m }}m{% endif %}
-                                        </span>
-                                    {% else %}
-                                        <span class="muted">-</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endif %}
-    </section>
 {% endblock %}

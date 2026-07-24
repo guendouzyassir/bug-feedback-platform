@@ -19,10 +19,17 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class UserController extends AbstractController
 {
     #[Route(name: 'app_admin_user_index', methods: ['GET'])]
-    public function index(UserRepository $userRepository): Response
+    public function index(Request $request, UserRepository $userRepository): Response
     {
+        $role = $request->query->get('role');
+        $allowedRoles = ['ROLE_ADMIN', 'ROLE_DEVELOPER', 'ROLE_CLIENT', null, ''];
+        if (!in_array($role, $allowedRoles, true)) {
+            $role = null;
+        }
+
         return $this->render('admin/user/index.html.twig', [
-            'users' => $userRepository->findBy([], ['createdAt' => 'DESC']),
+            'users' => $userRepository->findByRole($role),
+            'activeRole' => $role,
         ]);
     }
 
@@ -35,7 +42,6 @@ final class UserController extends AbstractController
         $user = new User();
         $form = $this->createForm(UserType::class, $user, [
             'is_create' => true,
-            'current_role' => 'ROLE_CLIENT',
         ]);
         $form->handleRequest($request);
 
@@ -64,9 +70,7 @@ final class UserController extends AbstractController
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordHasher,
     ): Response {
-        $form = $this->createForm(UserType::class, $user, [
-            'current_role' => $this->primaryRole($user),
-        ]);
+        $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

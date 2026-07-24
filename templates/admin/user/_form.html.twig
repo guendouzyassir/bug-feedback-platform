@@ -2,7 +2,20 @@
     {{ form_row(form.email) }}
     {{ form_row(form.fullName) }}
     {{ form_row(form.role) }}
-    {{ form_row(form.isActive) }}
+    <div class="form-row-inline">
+        <label class="toggle-wrapper" for="{{ form.isActive.vars.id }}">
+            <span class="toggle-text">{{ form.isActive.vars.label|default('Is active') }}</span>
+            <span class="toggle-switch">
+                <input type="checkbox"
+                       id="{{ form.isActive.vars.id }}"
+                       name="{{ form.isActive.vars.full_name }}"
+                       value="{{ form.isActive.vars.value }}"
+                       {% if form.isActive.vars.checked %}checked{% endif %}
+                       class="toggle-input">
+                <span class="toggle-slider"></span>
+            </span>
+        </label>
+    </div>
     {{ form_row(form.plainPassword) }}
 
     {% if form.clientProfile is defined %}

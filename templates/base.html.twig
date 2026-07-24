@@ -50,7 +50,7 @@
                         <span>Dashboard</span>
                     </a>
                 {% endif %}
-                <a class="sidebar-link {{ currentRoute starts with 'app_bug_report' ? 'active' : '' }}" href="{{ path('app_bug_report_index') }}">
+                <a class="sidebar-link {{ currentRoute == 'app_bug_report_index' ? 'active' : '' }}" href="{{ path('app_bug_report_index') }}">
                     <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <span>Bug Reports</span>
                 </a>
@@ -69,10 +69,16 @@
                     <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
                     <span>Projects</span>
                 </a>
-                <a class="sidebar-link {{ currentRoute starts with 'app_admin_user' ? 'active' : '' }}" href="{{ path('app_admin_user_index') }}">
+                <button class="sidebar-link sidebar-toggle-btn {{ currentRoute starts with 'app_admin_user' ? 'active' : '' }}" type="button" onclick="var s=document.getElementById('userSublinks');s.classList.toggle('expanded');this.classList.toggle('expanded')">
                     <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
                     <span>Users</span>
-                </a>
+                    <svg class="sidebar-chevron" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div class="sidebar-sublinks {{ currentRoute starts with 'app_admin_user' ? 'expanded' : '' }}" id="userSublinks">
+                    <a class="sidebar-sublink {{ app.request.query.get('role') == 'ROLE_ADMIN' ? 'active' : '' }}" href="{{ path('app_admin_user_index', {'role': 'ROLE_ADMIN'}) }}">Admins</a>
+                    <a class="sidebar-sublink {{ app.request.query.get('role') == 'ROLE_DEVELOPER' ? 'active' : '' }}" href="{{ path('app_admin_user_index', {'role': 'ROLE_DEVELOPER'}) }}">Devs</a>
+                    <a class="sidebar-sublink {{ app.request.query.get('role') == 'ROLE_CLIENT' ? 'active' : '' }}" href="{{ path('app_admin_user_index', {'role': 'ROLE_CLIENT'}) }}">Clients</a>
+                </div>
             </div>
             {% endif %}
         </nav>

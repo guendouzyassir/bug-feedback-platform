@@ -81,7 +81,7 @@ class BugReport
     /**
      * @var Collection<int, BugComment>
      */
-    #[ORM\OneToMany(mappedBy: 'bugReport', targetEntity: BugComment::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'bugReport', targetEntity: BugComment::class, cascade: ['remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['createdAt' => 'ASC'])]
     private Collection $comments;
 
@@ -236,7 +236,7 @@ class BugReport
             $this->openedAt = new \DateTimeImmutable();
         }
 
-        return $this;
+        return $this->touch();
     }
 
     public function getTreatedAt(): ?\DateTimeImmutable
@@ -257,7 +257,7 @@ class BugReport
             $this->treatedAt = new \DateTimeImmutable();
         }
 
-        return $this;
+        return $this->touch();
     }
 
     public function getClosedAt(): ?\DateTimeImmutable

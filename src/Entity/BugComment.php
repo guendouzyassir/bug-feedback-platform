@@ -27,12 +27,17 @@ class BugComment
     private ?BugReport $bugReport = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?User $author = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+    }
+
+    public function __toString(): string
+    {
+        return $this->content ? mb_substr($this->content, 0, 80) : 'Comment';
     }
 
     public function getId(): ?int

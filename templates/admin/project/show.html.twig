@@ -48,25 +48,11 @@
     </section>
 
     <section class="panel" style="margin-top:1.25rem;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-            <div style="display:flex;align-items:center;gap:.75rem;">
-                <h2 style="margin:0;">Assigned Clients</h2>
-                {% if project.assignedClients|length > 0 %}
-                    <span class="badge" style="background:var(--accent-light);color:var(--accent);font-weight:650;">{{ project.assignedClients|length }}</span>
-                {% endif %}
-            </div>
-            <a class="button button-sm" href="{{ path('app_admin_project_assign_clients', {'id': project.id}) }}">Manage</a>
-        </div>
         {% if project.assignedClients is empty %}
             <div class="empty-state" style="padding: 1.5rem;">
                 <p class="muted">No clients assigned to this project yet.</p>
             </div>
         {% else %}
-            <div class="client-badge-list" style="margin-bottom:1rem;">
-                {% for client in project.assignedClients %}
-                    <span class="client-avatar-sm" title="{{ client.fullName }} ({{ client.email }})">{{ client.fullName|slice(0,1) }}</span>
-                {% endfor %}
-            </div>
             <div class="table-wrap">
                 <table>
                     <thead>

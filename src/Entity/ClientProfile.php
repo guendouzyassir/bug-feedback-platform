@@ -27,7 +27,7 @@ class ClientProfile
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $companyAddress = null;
 
-    #[ORM\OneToOne(targetEntity: User::class, inversedBy: 'clientProfile', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: User::class, inversedBy: 'clientProfile', cascade: ['persist'])]
     private ?User $user = null;
 
     public function getId(): ?int

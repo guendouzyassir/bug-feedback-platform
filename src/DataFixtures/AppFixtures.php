@@ -54,6 +54,9 @@ class AppFixtures extends Fixture
             $manager->persist($project);
         }
 
+        $client->addAssignedProject($projects['website']);
+        $client->addAssignedProject($projects['mobile']);
+
         $manager->flush();
     }
 

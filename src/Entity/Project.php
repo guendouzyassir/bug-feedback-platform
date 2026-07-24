@@ -136,6 +136,12 @@ class Project
         return $this;
     }
 
+    #[ORM\PreUpdate]
+    public function preUpdate(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
     /**
      * @return Collection<int, BugReport>
      */

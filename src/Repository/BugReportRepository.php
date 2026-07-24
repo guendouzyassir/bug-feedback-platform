@@ -219,4 +219,41 @@ class BugReportRepository extends ServiceEntityRepository
 
         return $results;
     }
+
+    /**
+     * @return array<int, array{id: int, type: string, title: string, status: string, projectName: string, createdAt: \DateTimeImmutable, updatedAt: \DateTimeImmutable}>
+     */
+    public function findRecentActivity(int $limit = 10): array
+    {
+        $rows = $this->createQueryBuilder('bug')
+            ->select('bug.id AS id, bug.title AS title, bug.status AS status, bug.createdAt AS createdAt, bug.updatedAt AS updatedAt, project.name AS projectName')
+            ->innerJoin('bug.project', 'project')
+            ->orderBy('bug.updatedAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getArrayResult();
+
+        $results = [];
+        foreach ($rows as $row) {
+            $statusValue = $row['status'] instanceof \App\Enum\BugStatus
+                ? $row['status']->value
+                : (string) $row['status'];
+
+            $results[] = [
+                'id' => (int) $row['id'],
+                'type' => 'bug',
+                'title' => (string) $row['title'],
+                'status' => $statusValue,
+                'projectName' => (string) $row['projectName'],
+                'createdAt' => $row['createdAt'] instanceof \DateTimeImmutable
+                    ? $row['createdAt']
+                    : new \DateTimeImmutable((string) $row['createdAt']),
+                'updatedAt' => $row['updatedAt'] instanceof \DateTimeImmutable
+                    ? $row['updatedAt']
+                    : new \DateTimeImmutable((string) $row['updatedAt']),
+            ];
+        }
+
+        return $results;
+    }
 }

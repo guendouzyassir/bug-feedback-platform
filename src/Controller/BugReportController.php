@@ -70,7 +70,6 @@ final class BugReportController extends AbstractController
         BugReport $bugReport,
         EntityManagerInterface $entityManager,
         UserRepository $userRepository,
-        FileUploader $fileUploader,
     ): Response {
         $form = $this->createForm(BugManagementType::class, $bugReport, [
             'developers' => $userRepository->findDevelopers(),
@@ -78,15 +77,6 @@ final class BugReportController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($bugReport->getStatus() === BugStatus::Fixed) {
-                $fileUploader->remove($bugReport->getScreenshotFilename());
-                $entityManager->remove($bugReport);
-                $entityManager->flush();
-                $this->addFlash('success', 'Bug was fixed and has been removed.');
-
-                return $this->redirectToRoute('app_bug_report_index', [], Response::HTTP_SEE_OTHER);
-            }
-
             if ($bugReport->getOpenedAt() === null) {
                 $bugReport->markOpened();
             }
@@ -108,7 +98,7 @@ final class BugReportController extends AbstractController
     }
 
     #[Route('/{id}/status', name: 'app_bug_report_status', methods: ['POST'])]
-    public function updateStatus(Request $request, BugReport $bugReport, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
+    public function updateStatus(Request $request, BugReport $bugReport, EntityManagerInterface $entityManager): Response
     {
         if (!$this->isGranted('BUG_UPDATE_STATUS', $bugReport)) {
             throw $this->createAccessDeniedException('You cannot update this bug report status.');
@@ -118,15 +108,6 @@ final class BugReportController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($bugReport->getStatus() === BugStatus::Fixed) {
-                $fileUploader->remove($bugReport->getScreenshotFilename());
-                $entityManager->remove($bugReport);
-                $entityManager->flush();
-                $this->addFlash('success', 'Bug was fixed and has been removed.');
-
-                return $this->redirectToRoute('app_bug_report_index', [], Response::HTTP_SEE_OTHER);
-            }
-
             if ($bugReport->getOpenedAt() === null) {
                 $bugReport->markOpened();
             }

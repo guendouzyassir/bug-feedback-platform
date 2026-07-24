@@ -21,9 +21,30 @@ class UserRepository extends ServiceEntityRepository
      */
     public function findDevelopers(): array
     {
-        return array_values(array_filter(
-            $this->findBy(['isActive' => true], ['fullName' => 'ASC']),
-            static fn (User $user): bool => in_array('ROLE_DEVELOPER', $user->getRoles(), true),
-        ));
+        return $this->createQueryBuilder('u')
+            ->where('u.isActive = :active')
+            ->andWhere('u.roles LIKE :role')
+            ->setParameter('active', true)
+            ->setParameter('role', '%ROLE_DEVELOPER%')
+            ->orderBy('u.fullName', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return User[]
+     */
+    public function findByRole(?string $role): array
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->orderBy('u.createdAt', 'DESC');
+
+        if ($role !== null && $role !== '') {
+            $qb
+                ->where('u.roles LIKE :role')
+                ->setParameter('role', '%' . $role . '%');
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }
