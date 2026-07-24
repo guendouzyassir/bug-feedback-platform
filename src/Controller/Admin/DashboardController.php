@@ -21,6 +21,8 @@ class DashboardController extends AbstractController
         BugReportRepository $bugReportRepository,
     ): Response {
         $statusCounts = $bugReportRepository->countByStatus();
+        $developerStats = $bugReportRepository->countResolvedByDeveloper();
+        $timeSpentPerBug = $bugReportRepository->findTimeSpentPerBug();
 
         return $this->render('admin/dashboard.html.twig', [
             'userCount' => $userRepository->count([]),
@@ -31,14 +33,8 @@ class DashboardController extends AbstractController
             'fixedBugCount' => $statusCounts[BugStatus::Fixed->value] ?? 0,
             'criticalBugCount' => $bugReportRepository->count(['priority' => BugPriority::Critical]),
             'unassignedBugCount' => $bugReportRepository->count(['assignedDeveloper' => null]),
-            'bugsByStatus' => array_map(
-                static fn (BugStatus $status): array => [
-                    'label' => $status->label(),
-                    'count' => $statusCounts[$status->value] ?? 0,
-                ],
-                BugStatus::cases(),
-            ),
-            'bugsByProject' => $bugReportRepository->countByProject(),
+            'developerStats' => $developerStats,
+            'timeSpentPerBug' => $timeSpentPerBug,
         ]);
     }
 }

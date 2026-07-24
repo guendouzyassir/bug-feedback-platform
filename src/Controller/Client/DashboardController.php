@@ -17,8 +17,17 @@ class DashboardController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        $assignedProjects = $user->getAssignedProjects();
+
+        $projectBugCounts = [];
+        foreach ($assignedProjects as $project) {
+            $projectBugCounts[$project->getId()] = $bugReportRepository->count(['project' => $project]);
+        }
+
         return $this->render('client/dashboard.html.twig', [
             'reportedBugCount' => $bugReportRepository->count(['reporter' => $user]),
+            'assignedProjects' => $assignedProjects,
+            'projectBugCounts' => $projectBugCounts,
         ]);
     }
 }

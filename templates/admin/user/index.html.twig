@@ -1,22 +1,24 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Users | Bug Report Platform{% endblock %}
+{% block title %}Users | FixFlow{% endblock %}
+{% block topbar_title %}Users{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Users</h1>
             <p class="muted">Create and manage accounts for admins, developers, clients, and testers.</p>
         </div>
         <div class="actions">
             <a class="button" href="{{ path('app_admin_user_new') }}">New User</a>
-            <a class="button button-secondary" href="{{ path('admin_dashboard') }}">Dashboard</a>
         </div>
     </div>
 
     <section class="panel">
         {% if users is empty %}
-            <p class="muted">No user accounts found.</p>
+            <div class="empty-state">
+                <div class="empty-state-icon">&#128100;</div>
+                <p>No user accounts found.</p>
+            </div>
         {% else %}
             <div class="table-wrap">
                 <table>
@@ -34,27 +36,29 @@
                         {% for user in users %}
                             {% set roles = user.roles %}
                             <tr>
-                                <td>{{ user.fullName }}</td>
+                                <td><strong>{{ user.fullName }}</strong></td>
                                 <td>{{ user.email }}</td>
                                 <td>
                                     {% if 'ROLE_ADMIN' in roles %}
-                                        Admin
+                                        <span class="badge badge-priority-critical"><span class="badge-dot"></span>Admin</span>
                                     {% elseif 'ROLE_DEVELOPER' in roles %}
-                                        Developer
+                                        <span class="badge badge-priority-high"><span class="badge-dot"></span>Developer</span>
                                     {% elseif 'ROLE_CLIENT' in roles %}
-                                        Client/Tester
+                                        <span class="badge badge-priority-medium"><span class="badge-dot"></span>Client</span>
                                         {% if user.clientProfile %}
-                                            <br><small class="muted">{{ user.clientProfile.companyName }}</small>
+                                            <div class="muted" style="font-size:.8rem;margin-top:.2rem;">{{ user.clientProfile.companyName }}</div>
                                         {% endif %}
                                     {% else %}
-                                        User
+                                        <span class="badge">User</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ user.isActive ? 'Active' : 'Inactive' }}</td>
-                                <td>{{ user.createdAt|date('Y-m-d H:i') }}</td>
+                                <td>
+                                    <span class="badge {{ user.isActive ? 'badge-status-closed' : 'badge-status-rejected' }}"><span class="badge-dot"></span>{{ user.isActive ? 'Active' : 'Inactive' }}</span>
+                                </td>
+                                <td>{{ user.createdAt|date('Y-m-d') }}</td>
                                 <td>
                                     <div class="actions">
-                                        <a href="{{ path('app_admin_user_edit', {'id': user.id}) }}">Edit</a>
+                                        <a class="button button-sm button-secondary" href="{{ path('app_admin_user_edit', {'id': user.id}) }}">Edit</a>
                                         {% if app.user and app.user.id != user.id %}
                                             {% include 'admin/user/_delete_form.html.twig' with {user: user} %}
                                         {% endif %}

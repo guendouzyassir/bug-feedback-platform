@@ -44,7 +44,7 @@ class UserType extends AbstractType
             ])
         ;
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options): void {
             /** @var User|null $user */
             $user = $event->getData();
             $form = $event->getForm();
@@ -60,6 +60,28 @@ class UserType extends AbstractType
             }
         });
 
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
+            $form = $event->getForm();
+            $data = $event->getData();
+
+            $role = $data['role'] ?? null;
+
+            if ($role === 'ROLE_CLIENT') {
+                /** @var User|null $user */
+                $user = $form->getData();
+
+                if ($user !== null && $user->getClientProfile() === null) {
+                    $user->setClientProfile(new ClientProfile());
+                }
+
+                if (!$form->has('clientProfile')) {
+                    $form->add('clientProfile', ClientProfileType::class, [
+                        'label' => 'Client Profile',
+                    ]);
+                }
+            }
+        });
+
         $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
             /** @var User|null $user */
             $user = $event->getData();
@@ -70,10 +92,6 @@ class UserType extends AbstractType
             }
 
             $role = $form->get('role')->getData();
-
-            if ($role === 'ROLE_CLIENT' && $user->getClientProfile() === null) {
-                $user->setClientProfile(new ClientProfile());
-            }
 
             if ($role !== 'ROLE_CLIENT' && $user->getClientProfile() !== null) {
                 $user->setClientProfile(null);

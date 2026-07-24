@@ -1,0 +1,163 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Assign Clients - {{ project.name }} | FixFlow{% endblock %}
+{% block topbar_title %}Assign Clients{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <p class="muted">Select the clients who should have access to this project.</p>
+        </div>
+        <div class="actions">
+            <a class="button button-secondary" href="{{ path('app_admin_project_show', {'id': project.id}) }}">Back to Project</a>
+        </div>
+    </div>
+
+    <section class="panel" style="margin-bottom:1.5rem;">
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+            <div style="flex:1;min-width:200px;">
+                <h2 style="margin:0 0 .15rem;">{{ project.name }}</h2>
+                <p class="muted" style="font-size:.84rem;">{{ project.platform }} &middot; {{ project.description|length > 80 ? project.description|slice(0, 80) ~ '...' : (project.description ?: 'No description') }}</p>
+            </div>
+            <div class="client-assignment-summary" id="assignmentSummary">
+                <span class="client-summary-count" id="selectedCount">0</span>
+                <span class="client-summary-label">clients selected</span>
+            </div>
+        </div>
+    </section>
+
+    {{ form_start(form, {'attr': {'class': 'client-assignment-form'}}) }}
+        {{ form_widget(form._token) }}
+
+        <section class="panel" style="margin-bottom:1.5rem;">
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+                <div class="client-search" style="flex:1;min-width:200px;max-width:400px;">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    <input type="search" placeholder="Search clients by name or email..." id="clientSearchInput">
+                </div>
+                <div style="display:flex;gap:.5rem;">
+                    <button type="button" class="button button-sm button-ghost" onclick="selectAllClients()">Select All</button>
+                    <button type="button" class="button button-sm button-ghost" onclick="deselectAllClients()">Deselect All</button>
+                </div>
+            </div>
+
+            <div class="client-card-grid" id="clientGrid">
+                {% set assignedIds = project.assignedClients|map(c => c.id)|map(v => v ~ '') %}
+                {% for choice in form.assignedClients.vars.choices %}
+                    {% set client = choice.data %}
+                    {% set clientId = choice.value ~ '' %}
+                    {% set isAssigned = clientId in assignedIds %}
+                    <label class="client-card {{ isAssigned ? 'is-assigned' : '' }}" data-client-search="{{ client.fullName|lower ~ ' ' ~ client.email|lower ~ ' ' ~ (client.clientProfile.companyName|default('')|lower) }}">
+                        <input type="checkbox"
+                               name="{{ form.assignedClients.vars.full_name }}[]"
+                               value="{{ clientId }}"
+                               {{ isAssigned ? 'checked' : '' }}
+                               class="client-card-input"
+                               onchange="toggleClientCard(this)">
+                        <div class="client-card-check">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="14" height="14"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <div class="client-card-avatar">
+                            {{ client.fullName|slice(0,1) }}
+                        </div>
+                        <div class="client-card-info">
+                            <div class="client-card-name">{{ client.fullName }}</div>
+                            <div class="client-card-email">{{ client.email }}</div>
+                            {% if client.clientProfile and client.clientProfile.companyName %}
+                                <div class="client-card-company">{{ client.clientProfile.companyName }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="client-card-status">
+                            {% if isAssigned %}
+                                <span class="badge badge-status-closed" style="font-size:.65rem;"><span class="badge-dot"></span>Assigned</span>
+                            {% endif %}
+                        </div>
+                    </label>
+                {% endfor %}
+
+                <div class="client-card-empty" id="noResults" style="display:none;">
+                    <div class="empty-state" style="padding:2rem 1rem;">
+                        <div class="empty-state-icon">&#128269;</div>
+                        <p>No clients match your search.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div style="display:flex;align-items:center;gap:.75rem;justify-content:flex-end;flex-wrap:wrap;">
+            <button class="button" type="submit">Save Assignments</button>
+            <a class="button button-secondary" href="{{ path('app_admin_project_show', {'id': project.id}) }}">Cancel</a>
+        </div>
+    {{ form_end(form, {'render_rest': false}) }}
+
+    <script>
+    (function() {
+        var searchInput = document.getElementById('clientSearchInput');
+        var grid = document.getElementById('clientGrid');
+        var cards = grid.querySelectorAll('.client-card');
+        var noResults = document.getElementById('noResults');
+
+        function updateSummary() {
+            var checked = grid.querySelectorAll('.client-card-input:checked').length;
+            document.getElementById('selectedCount').textContent = checked;
+        }
+
+        window.toggleClientCard = function(checkbox) {
+            var card = checkbox.closest('.client-card');
+            if (checkbox.checked) {
+                card.classList.add('is-assigned');
+                var statusEl = card.querySelector('.client-card-status');
+                if (!statusEl.querySelector('.badge')) {
+                    statusEl.innerHTML = '<span class="badge badge-status-closed" style="font-size:.65rem;"><span class="badge-dot"></span>Assigned</span>';
+                }
+            } else {
+                card.classList.remove('is-assigned');
+                var statusEl = card.querySelector('.client-card-status');
+                statusEl.innerHTML = '';
+            }
+            updateSummary();
+        };
+
+        window.selectAllClients = function() {
+            cards.forEach(function(card) {
+                if (card.style.display !== 'none') {
+                    var cb = card.querySelector('.client-card-input');
+                    if (!cb.checked) {
+                        cb.checked = true;
+                        window.toggleClientCard(cb);
+                    }
+                }
+            });
+        };
+
+        window.deselectAllClients = function() {
+            cards.forEach(function(card) {
+                if (card.style.display !== 'none') {
+                    var cb = card.querySelector('.client-card-input');
+                    if (cb.checked) {
+                        cb.checked = false;
+                        window.toggleClientCard(cb);
+                    }
+                }
+            });
+        };
+
+        searchInput.addEventListener('input', function() {
+            var query = this.value.toLowerCase().trim();
+            var visibleCount = 0;
+            cards.forEach(function(card) {
+                var haystack = card.getAttribute('data-client-search') || '';
+                if (!query || haystack.indexOf(query) !== -1) {
+                    card.style.display = '';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            noResults.style.display = visibleCount === 0 ? '' : 'none';
+        });
+
+        updateSummary();
+    })();
+    </script>
+{% endblock %}

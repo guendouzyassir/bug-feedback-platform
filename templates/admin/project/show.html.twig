@@ -1,28 +1,36 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ project.name }} | Bug Report Platform{% endblock %}
+{% block title %}{{ project.name }} | FixFlow{% endblock %}
+{% block topbar_title %}{{ project.name }}{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>{{ project.name }}</h1>
-            <p class="muted">{{ project.platform }} project</p>
+            <p class="muted">{{ project.platform }} project &middot; {{ project.isActive ? 'Active' : 'Inactive' }}</p>
         </div>
         <div class="actions">
-            <a class="button" href="{{ path('app_admin_project_edit', {'id': project.id}) }}">Edit</a>
+            <a class="button" href="{{ path('app_admin_project_assign_clients', {'id': project.id}) }}">Assign Clients</a>
+            <a class="button button-secondary" href="{{ path('app_admin_project_edit', {'id': project.id}) }}">Edit</a>
+            {{ include('admin/project/_delete_form.html.twig') }}
             <a class="button button-secondary" href="{{ path('app_admin_project_index') }}">Back to Projects</a>
         </div>
     </div>
 
     <section class="panel stack">
-        <dl class="meta-list">
+        <dl class="meta-list" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
             <div>
                 <dt>Description</dt>
                 <dd>{{ project.description ?: 'No description provided.' }}</dd>
             </div>
             <div>
+                <dt>Platform</dt>
+                <dd>{{ project.platform }}</dd>
+            </div>
+            <div>
                 <dt>Status</dt>
-                <dd>{{ project.isActive ? 'Active' : 'Inactive' }}</dd>
+                <dd>
+                    <span class="badge {{ project.isActive ? 'badge-status-closed' : 'badge-status-rejected' }}"><span class="badge-dot"></span>{{ project.isActive ? 'Active' : 'Inactive' }}</span>
+                </dd>
             </div>
             <div>
                 <dt>Created</dt>
@@ -32,8 +40,94 @@
                 <dt>Last Updated</dt>
                 <dd>{{ project.updatedAt|date('Y-m-d H:i') }}</dd>
             </div>
+            <div>
+                <dt>Total Bug Reports</dt>
+                <dd>{{ project.bugReports|length }}</dd>
+            </div>
         </dl>
+    </section>
 
-        {{ include('admin/project/_delete_form.html.twig') }}
+    <section class="panel" style="margin-top:1.25rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <div style="display:flex;align-items:center;gap:.75rem;">
+                <h2 style="margin:0;">Assigned Clients</h2>
+                {% if project.assignedClients|length > 0 %}
+                    <span class="badge" style="background:var(--accent-light);color:var(--accent);font-weight:650;">{{ project.assignedClients|length }}</span>
+                {% endif %}
+            </div>
+            <a class="button button-sm" href="{{ path('app_admin_project_assign_clients', {'id': project.id}) }}">Manage</a>
+        </div>
+        {% if project.assignedClients is empty %}
+            <div class="empty-state" style="padding: 1.5rem;">
+                <p class="muted">No clients assigned to this project yet.</p>
+            </div>
+        {% else %}
+            <div class="client-badge-list" style="margin-bottom:1rem;">
+                {% for client in project.assignedClients %}
+                    <span class="client-avatar-sm" title="{{ client.fullName }} ({{ client.email }})">{{ client.fullName|slice(0,1) }}</span>
+                {% endfor %}
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Email</th>
+                            <th>Company</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in project.assignedClients %}
+                            <tr>
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:.6rem;">
+                                        <span class="client-avatar-sm" style="margin-left:0;">{{ client.fullName|slice(0,1) }}</span>
+                                        <strong>{{ client.fullName }}</strong>
+                                    </div>
+                                </td>
+                                <td>{{ client.email }}</td>
+                                <td>{{ client.clientProfile ? client.clientProfile.companyName : '-' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="panel" style="margin-top:1.25rem;">
+        <h2 style="margin:0 0 1rem;">Bug Reports</h2>
+        {% if project.bugReports is empty %}
+            <div class="empty-state" style="padding: 1.5rem;">
+                <p class="muted">No bugs reported for this project.</p>
+            </div>
+        {% else %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Developer</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bug in project.bugReports %}
+                            <tr>
+                                <td>#{{ bug.id }}</td>
+                                <td><a href="{{ path('app_bug_report_show', {'id': bug.id}) }}">{{ bug.title }}</a></td>
+                                <td><span class="badge badge-priority-{{ bug.priority.value }}"><span class="badge-dot"></span>{{ bug.priority.label() }}</span></td>
+                                <td><span class="badge badge-status-{{ bug.status.value }}"><span class="badge-dot"></span>{{ bug.status.label() }}</span></td>
+                                <td>{{ bug.assignedDeveloper ? bug.assignedDeveloper.fullName : 'Unassigned' }}</td>
+                                <td>{{ bug.createdAt|date('Y-m-d') }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
     </section>
 {% endblock %}

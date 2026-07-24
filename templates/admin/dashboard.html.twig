@@ -1,11 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Admin Dashboard | Bug Report Platform{% endblock %}
+{% block title %}Admin Dashboard | FixFlow{% endblock %}
+{% block topbar_title %}Admin Dashboard{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Admin Dashboard</h1>
             <p class="muted">Project, bug, and workflow overview.</p>
         </div>
         <div class="actions">
@@ -44,70 +44,137 @@
 
     <section class="grid">
         <article class="metric">
-            Users
-            <strong>{{ userCount }}</strong>
+            <div class="metric-label">Users</div>
+            <span class="metric-value">{{ userCount }}</span>
         </article>
         <article class="metric">
-            Projects
-            <strong>{{ projectCount }}</strong>
+            <div class="metric-label">Projects</div>
+            <span class="metric-value">{{ projectCount }}</span>
         </article>
         <article class="metric">
-            Bug Reports
-            <strong>{{ bugCount }}</strong>
+            <div class="metric-label">Bug Reports</div>
+            <span class="metric-value">{{ bugCount }}</span>
         </article>
         <article class="metric">
-            Open
-            <strong>{{ openBugCount }}</strong>
+            <div class="metric-label">Open</div>
+            <span class="metric-value">{{ openBugCount }}</span>
         </article>
         <article class="metric">
-            In Progress
-            <strong>{{ inProgressBugCount }}</strong>
+            <div class="metric-label">In Progress</div>
+            <span class="metric-value">{{ inProgressBugCount }}</span>
         </article>
         <article class="metric">
-            Fixed
-            <strong>{{ fixedBugCount }}</strong>
+            <div class="metric-label">Fixed</div>
+            <span class="metric-value">{{ fixedBugCount }}</span>
         </article>
         <article class="metric">
-            Critical
-            <strong>{{ criticalBugCount }}</strong>
+            <div class="metric-label">Critical</div>
+            <span class="metric-value">{{ criticalBugCount }}</span>
         </article>
         <article class="metric">
-            Unassigned
-            <strong>{{ unassignedBugCount }}</strong>
+            <div class="metric-label">Unassigned</div>
+            <span class="metric-value">{{ unassignedBugCount }}</span>
         </article>
     </section>
 
-    <section class="dashboard-grid">
-        <article class="panel stack">
-            <h2>Bugs By Status</h2>
-            <table>
-                <tbody>
-                    {% for item in bugsByStatus %}
-                        <tr>
-                            <td>{{ item.label }}</td>
-                            <td><strong>{{ item.count }}</strong></td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </article>
+    <h2 class="section-title">Developer Performance</h2>
 
-        <article class="panel stack">
-            <h2>Bugs By Project</h2>
-            {% if bugsByProject is empty %}
-                <p class="muted">No bugs have been reported yet.</p>
-            {% else %}
+    <section class="stat-card" style="margin-bottom: 1.25rem;">
+        <h2>Bugs Resolved Per Developer</h2>
+        {% if developerStats is empty %}
+            <div class="empty-state" style="padding: 1.5rem;">
+                <p class="muted">No resolved bugs yet.</p>
+            </div>
+        {% else %}
+            <div class="table-wrap">
                 <table>
+                    <thead>
+                        <tr>
+                            <th>Developer</th>
+                            <th>Bugs Resolved</th>
+                            <th>Share</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        {% for item in bugsByProject %}
+                        {% set maxCount = developerStats|first.count %}
+                        {% for dev in developerStats %}
                             <tr>
-                                <td>{{ item.name }}</td>
-                                <td><strong>{{ item.count }}</strong></td>
+                                <td><strong>{{ dev.fullName }}</strong></td>
+                                <td>
+                                    <span class="metric-value" style="font-size:1.1rem; margin:0;">{{ dev.count }}</span>
+                                </td>
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:.6rem;">
+                                        <div style="flex:1;height:6px;background:var(--bg-subtle);border-radius:3px;overflow:hidden;min-width:60px;">
+                                            <div style="height:100%;width:{{ (dev.count / maxCount * 100)|round }}%;background:linear-gradient(90deg,var(--accent),var(--purple));border-radius:3px;transition:width .3s ease;"></div>
+                                        </div>
+                                        <span class="muted" style="font-size:.75rem;white-space:nowrap;">{{ ((dev.count / bugCount) * 100)|round }}%</span>
+                                    </div>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            {% endif %}
-        </article>
+            </div>
+        {% endif %}
+    </section>
+
+    <h2 class="section-title">Time Tracking</h2>
+
+    <section class="stat-card" style="margin-top: 1.25rem;">
+        <h2>Time Spent Per Bug</h2>
+        {% if timeSpentPerBug is empty %}
+            <div class="empty-state" style="padding: 1.5rem;">
+                <p class="muted">No time tracking data available yet.</p>
+            </div>
+        {% else %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bug</th>
+                            <th>Developer</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Treated</th>
+                            <th>Closed</th>
+                            <th>Time Spent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in timeSpentPerBug %}
+                            <tr>
+                                <td>
+                                    <a href="{{ path('app_bug_report_show', {'id': entry.bugId}) }}">#{{ entry.bugId }} {{ entry.title }}</a>
+                                </td>
+                                <td>{{ entry.developerName ?: 'Unassigned' }}</td>
+                                <td>
+                                    {% if entry.closedAt %}
+                                        <span class="badge badge-status-closed"><span class="badge-dot"></span>Closed</span>
+                                    {% elseif entry.treatedAt %}
+                                        <span class="badge badge-status-in_progress"><span class="badge-dot"></span>In Progress</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ entry.createdAt|date('Y-m-d') }}</td>
+                                <td>{{ entry.treatedAt ? entry.treatedAt|date('Y-m-d') : '-' }}</td>
+                                <td>{{ entry.closedAt ? entry.closedAt|date('Y-m-d') : '-' }}</td>
+                                <td>
+                                    {% if entry.timeSpentHours is not null %}
+                                        {% set totalMinutes = (entry.timeSpentHours * 60)|round %}
+                                        {% set h = (totalMinutes / 60)|round(0, 'floor') %}
+                                        {% set m = totalMinutes % 60 %}
+                                        <span class="badge" style="background:var(--accent-light);color:var(--accent);font-weight:650;">
+                                            {% if h > 0 and m > 0 %}{{ h }}h {{ m }}m{% elseif h > 0 %}{{ h }}h{% else %}{{ m }}m{% endif %}
+                                        </span>
+                                    {% else %}
+                                        <span class="muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
     </section>
 {% endblock %}

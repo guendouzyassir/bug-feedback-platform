@@ -1,68 +1,65 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ bug_report.title }} | Bug Report Platform{% endblock %}
+{% block title %}{{ bug_report.title }} | FixFlow{% endblock %}
+{% block topbar_title %}Bug #{{ bug_report.id }}{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
             <h1>{{ bug_report.title }}</h1>
-            <p class="muted">#{{ bug_report.id }} · {{ bug_report.project.name }} · Submitted {{ bug_report.createdAt|date('Y-m-d H:i') }}</p>
+            <p class="muted">{{ bug_report.project.name }} &middot; Submitted {{ bug_report.createdAt|date('Y-m-d H:i') }}</p>
         </div>
         <div class="actions">
             {% if can_manage %}
-                <a class="button" href="{{ path('app_bug_report_manage', {'id': bug_report.id}) }}">Manage</a>
+                <a class="button button-sm" href="{{ path('app_bug_report_manage', {'id': bug_report.id}) }}">Manage</a>
                 {% include 'bug_report/_delete_form.html.twig' with {bug_report: bug_report} %}
             {% endif %}
-            <a class="button button-secondary" href="{{ path('app_bug_report_index') }}">Back to Bugs</a>
+            <a class="button button-sm button-secondary" href="{{ path('app_bug_report_index') }}">Back to Bugs</a>
         </div>
     </div>
 
-    <section class="grid">
+    <section class="grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
         <article class="metric">
-            Priority
-            <strong><span class="badge badge-priority-{{ bug_report.priority.value }}">{{ bug_report.priority.label() }}</span></strong>
+            <div class="metric-label">Priority</div>
+            <span class="badge badge-priority-{{ bug_report.priority.value }}" style="margin-top:.35rem;"><span class="badge-dot"></span>{{ bug_report.priority.label() }}</span>
         </article>
         <article class="metric">
-            Status
-            <strong><span class="badge badge-status-{{ bug_report.status.value }}">{{ bug_report.status.label() }}</span></strong>
+            <div class="metric-label">Status</div>
+            <span class="badge badge-status-{{ bug_report.status.value }}" style="margin-top:.35rem;"><span class="badge-dot"></span>{{ bug_report.status.label() }}</span>
         </article>
         <article class="metric">
-            Reporter
-            <strong>{{ bug_report.reporter.fullName }}</strong>
+            <div class="metric-label">Reporter</div>
+            <span class="metric-value" style="font-size:1rem;">{{ bug_report.reporter.fullName }}</span>
         </article>
         <article class="metric">
-            Developer
-            <strong>{{ bug_report.assignedDeveloper ? bug_report.assignedDeveloper.fullName : 'Unassigned' }}</strong>
+            <div class="metric-label">Developer</div>
+            <span class="metric-value" style="font-size:1rem;">{{ bug_report.assignedDeveloper ? bug_report.assignedDeveloper.fullName : 'Unassigned' }}</span>
         </article>
     </section>
 
     <section class="panel stack">
         <div>
             <h2>Description</h2>
-            <p>{{ bug_report.description|nl2br }}</p>
+            <p style="white-space: pre-wrap;">{{ bug_report.description }}</p>
         </div>
-
         {% if bug_report.stepsToReproduce %}
             <div>
                 <h2>Steps to Reproduce</h2>
-                <p>{{ bug_report.stepsToReproduce|nl2br }}</p>
+                <p style="white-space: pre-wrap;">{{ bug_report.stepsToReproduce }}</p>
             </div>
         {% endif %}
-
         {% if bug_report.expectedResult %}
             <div>
                 <h2>Expected Result</h2>
-                <p>{{ bug_report.expectedResult|nl2br }}</p>
+                <p style="white-space: pre-wrap;">{{ bug_report.expectedResult }}</p>
             </div>
         {% endif %}
-
         {% if bug_report.actualResult %}
             <div>
                 <h2>Actual Result</h2>
-                <p>{{ bug_report.actualResult|nl2br }}</p>
+                <p style="white-space: pre-wrap;">{{ bug_report.actualResult }}</p>
             </div>
         {% endif %}
-
         {% if bug_report.screenshotFilename %}
             <div>
                 <h2>Screenshot</h2>
@@ -75,7 +72,7 @@
 
     <section class="panel stack">
         <h2>Timeline</h2>
-        <dl class="meta-list">
+        <dl class="meta-list" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
             <div>
                 <dt>Report Date</dt>
                 <dd>{{ bug_report.createdAt|date('Y-m-d H:i') }}</dd>
@@ -116,16 +113,18 @@
         {{ form_end(comment_form) }}
 
         {% if bug_report.comments is empty %}
-            <p class="muted">No comments yet.</p>
+            <div class="empty-state" style="padding: 1.5rem;">
+                <p class="muted">No comments yet.</p>
+            </div>
         {% else %}
             <div class="comments">
                 {% for comment in bug_report.comments %}
                     <article class="comment">
                         <header>
                             <strong>{{ comment.author.fullName }}</strong>
-                            <span class="muted">{{ comment.createdAt|date('Y-m-d H:i') }}</span>
+                            <span class="muted" style="font-size:.82rem;">{{ comment.createdAt|date('Y-m-d H:i') }}</span>
                         </header>
-                        <p>{{ comment.content|nl2br }}</p>
+                        <p style="margin-top:.5rem;white-space:pre-wrap;">{{ comment.content }}</p>
                     </article>
                 {% endfor %}
             </div>

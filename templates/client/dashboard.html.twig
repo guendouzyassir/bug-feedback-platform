@@ -1,28 +1,49 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Client Dashboard | Bug Report Platform{% endblock %}
+{% block title %}Client Dashboard | FixFlow{% endblock %}
+{% block topbar_title %}Client Dashboard{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Client Dashboard</h1>
             <p class="muted">Create bug reports and follow your submitted issues.</p>
         </div>
-        <a class="button" href="{{ path('app_bug_report_new') }}">New Bug Report</a>
+        {% if assignedProjects|length > 0 %}
+            <a class="button" href="{{ path('app_bug_report_new') }}">New Bug Report</a>
+        {% endif %}
     </div>
 
     <section class="grid">
         <article class="metric">
-            Reported Bugs
-            <strong>{{ reportedBugCount }}</strong>
+            <div class="metric-label">Reported Bugs</div>
+            <span class="metric-value">{{ reportedBugCount }}</span>
+        </article>
+        <article class="metric">
+            <div class="metric-label">Assigned Projects</div>
+            <span class="metric-value">{{ assignedProjects|length }}</span>
         </article>
     </section>
 
-    <section class="quick-actions">
-        <a class="quick-action" href="{{ path('app_bug_report_new') }}">
-            <strong>Report New Bug</strong>
-            <span class="muted">Send details, priority, and screenshot.</span>
-        </a>
+    {% if assignedProjects|length > 0 %}
+    <h2 class="section-title" style="margin-top: .75rem;">My Projects</h2>
+    <section class="grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+        {% for project in assignedProjects %}
+            <a class="quick-action" href="{{ path('app_bug_report_index', {'project': project.id}) }}">
+                <strong>{{ project.name }}</strong>
+                <span class="muted">{{ project.platform }} &middot; {{ projectBugCounts[project.id] ?? 0 }} bugs</span>
+            </a>
+        {% endfor %}
+    </section>
+    {% else %}
+    <section class="panel" style="margin-top:1.25rem;">
+        <div class="empty-state">
+            <div class="empty-state-icon">&#128194;</div>
+            <p>No projects assigned yet. Contact your administrator to get access to projects.</p>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="quick-actions" style="margin-top:1.5rem;">
         <a class="quick-action" href="{{ path('app_bug_report_index') }}">
             <strong>My Bug Reports</strong>
             <span class="muted">Follow status and developer comments.</span>

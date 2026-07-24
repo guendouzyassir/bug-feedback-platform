@@ -6,13 +6,27 @@
     {{ form_row(form.plainPassword) }}
 
     {% if form.clientProfile is defined %}
+    <div id="client-profile-section">
         <fieldset class="form-fieldset">
             <legend>Client Profile</legend>
             {{ form_row(form.clientProfile.companyName) }}
             {{ form_row(form.clientProfile.phoneNumber) }}
             {{ form_row(form.clientProfile.companyAddress) }}
         </fieldset>
+    </div>
     {% endif %}
+    <script>
+    (function() {
+        var roleSelect = document.getElementById('{{ form.role.vars.id }}');
+        var section = document.getElementById('client-profile-section');
+        if (roleSelect && section) {
+            section.style.display = roleSelect.value === 'ROLE_CLIENT' ? '' : 'none';
+            roleSelect.addEventListener('change', function() {
+                section.style.display = this.value === 'ROLE_CLIENT' ? '' : 'none';
+            });
+        }
+    })();
+    </script>
 
     <button class="button">{{ button_label|default('Save User') }}</button>
 {{ form_end(form) }}

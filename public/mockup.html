@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Feedback Platform — Premium UI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --canvas: #F4F6FB;
+            --canvas-warm: #F8F9FC;
+            --sidebar: #0B0F1A;
+            --sidebar-surface: #111827;
+            --sidebar-hover: #1C2333;
+            --sidebar-active: rgba(37,99,235,.12);
+            --white: #FFFFFF;
+            --border: #E4E8EE;
+            --border-subtle: #ECEEF3;
+            --border-focus: #BFDBFE;
+            --primary: #2563EB;
+            --primary-hover: #1D4ED8;
+            --primary-glow: rgba(37,99,235,.12);
+            --primary-surface: #EFF6FF;
+            --text: #0B0F1A;
+            --text-secondary: #3D4658;
+            --muted: #6B7689;
+            --muted-light: #9CA3B4;
+            --muted-faint: #B8BFC9;
+            --red-bg: #FEE8E8;
+            --red: #E53E3E;
+            --red-glow: rgba(229,62,62,.08);
+            --orange-bg: #FFF0E0;
+            --orange: #DD6B20;
+            --orange-glow: rgba(221,107,32,.08);
+            --blue-bg: #E8F0FE;
+            --blue: #3B82F6;
+            --blue-glow: rgba(59,130,246,.08);
+            --green-bg: #E6F9EE;
+            --green: #16A34A;
+            --green-glow: rgba(22,163,74,.08);
+            --yellow-bg: #FEF6D8;
+            --yellow: #D97706;
+            --purple-bg: #EFF6FF;
+            --purple: #60A5FA;
+            --radius-sm: 6px;
+            --radius: 8px;
+            --radius-md: 10px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-2xl: 20px;
+            --radius-full: 9999px;
+            --shadow-inset: inset 0 1px 0 rgba(255,255,255,.04);
+            --shadow-xs: 0 1px 2px rgba(11,15,26,.04);
+            --shadow-sm: 0 1px 3px rgba(11,15,26,.05), 0 1px 2px rgba(11,15,26,.03);
+            --shadow-md: 0 4px 12px -2px rgba(11,15,26,.06), 0 2px 4px -1px rgba(11,15,26,.03);
+            --shadow-lg: 0 12px 40px -6px rgba(11,15,26,.1), 0 4px 10px -2px rgba(11,15,26,.04);
+            --shadow-xl: 0 24px 60px -12px rgba(11,15,26,.18);
+            --shadow-card: 0 1px 3px rgba(11,15,26,.04), 0 0 0 1px rgba(11,15,26,.03);
+            --shadow-card-hover: 0 8px 24px -4px rgba(11,15,26,.08), 0 0 0 1px rgba(11,15,26,.05);
+            --shadow-glow: 0 0 0 1px rgba(37,99,235,.15), 0 4px 16px -2px rgba(37,99,235,.12);
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        html { height: 100%; }
+
+        body {
+            font-family: var(--font);
+            background: var(--canvas);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══════ NOISE TEXTURE ══════ */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: .025;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 200px;
+        }
+
+        /* ══════ APP SHELL ══════ */
+        .app { display: flex; height: 100vh; position: relative; z-index: 1; }
+
+        /* ── Sidebar ─────────────────────── */
+        .sidebar {
+            width: 248px;
+            min-width: 248px;
+            background: var(--sidebar);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 50;
+            border-right: 1px solid rgba(255,255,255,.04);
+            position: relative;
+        }
+
+        /* Subtle gradient glow at top of sidebar */
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: radial-gradient(ellipse at 50% -20%, rgba(37,99,235,.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            padding: 1.35rem 1.3rem 1.15rem;
+            border-bottom: 1px solid rgba(255,255,255,.05);
+            position: relative;
+        }
+
+        .sidebar-brand-mark {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background: linear-gradient(145deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 2px 8px rgba(37,99,235,.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Inner shine on mark */
+        .sidebar-brand-mark::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,.18) 0%, transparent 100%);
+            border-radius: 7px 7px 0 0;
+        }
+
+        .sidebar-brand-mark svg {
+            width: 15px;
+            height: 15px;
+            color: #fff;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-brand-text {
+            color: rgba(255,255,255,.92);
+            font-weight: 700;
+            font-size: .9rem;
+            letter-spacing: -.025em;
+        }
+
+        .sidebar-section {
+            padding: .85rem .8rem .25rem;
+            position: relative;
+        }
+
+        .sidebar-section-label {
+            color: rgba(255,255,255,.28);
+            font-size: .62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            padding: 0 .55rem;
+            margin-bottom: .4rem;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            padding: .48rem .6rem;
+            border-radius: var(--radius);
+            color: rgba(255,255,255,.48);
+            font-size: .8rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all .15s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(255,255,255,.04);
+            color: rgba(255,255,255,.85);
+        }
+
+        .sidebar-link.active {
+            background: var(--sidebar-active);
+            color: #93C5FD;
+        }
+
+        .sidebar-link.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 16px;
+            background: linear-gradient(180deg, #2563EB, #3B82F6);
+            border-radius: 0 2px 2px 0;
+        }
+
+        .sidebar-link-icon {
+            width: 17px;
+            height: 17px;
+            opacity: .5;
+            flex-shrink: 0;
+        }
+
+        .sidebar-link.active .sidebar-link-icon { opacity: .9; }
+
+        .sidebar-link-badge {
+            margin-left: auto;
+            background: rgba(255,255,255,.07);
+            color: rgba(255,255,255,.55);
+            font-size: .65rem;
+            font-weight: 600;
+            padding: .08rem .4rem;
+            border-radius: var(--radius-full);
+            line-height: 1.45;
+        }
+
+        .sidebar-link.active .sidebar-link-badge {
+            background: rgba(37,99,235,.2);
+            color: #93C5FD;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: rgba(255,255,255,.05);
+            margin: .6rem .8rem;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: .8rem;
+            border-top: 1px solid rgba(255,255,255,.05);
+        }
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            padding: .5rem .55rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .sidebar-user:hover { background: rgba(255,255,255,.04); }
+
+        .sidebar-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(145deg, #2563EB, #3B82F6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: .68rem;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 2px rgba(255,255,255,.08);
+        }
+
+        .sidebar-user-name {
+            color: rgba(255,255,255,.85);
+            font-size: .78rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-user-role {
+            color: rgba(255,255,255,.32);
+            font-size: .65rem;
+        }
+
+        .sidebar-user-info { flex: 1; min-width: 0; }
+
+        /* ── Main ────────────────────────── */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+            background: var(--canvas);
+        }
+
+        /* ── Topbar ──────────────────────── */
+        .topbar {
+            background: rgba(244,246,251,.82);
+            backdrop-filter: blur(20px) saturate(1.4);
+            -webkit-backdrop-filter: blur(20px) saturate(1.4);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: .6rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 40;
+            position: relative;
+        }
+
+        /* Subtle bottom shadow instead of hard border */
+        .topbar::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(37,99,235,.06) 50%, transparent);
+        }
+
+        .topbar-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+            font-size: .82rem;
+        }
+
+        .topbar-breadcrumb-sep {
+            color: var(--muted-faint);
+            font-size: .7rem;
+        }
+
+        .topbar-breadcrumb-parent {
+            color: var(--muted);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color .15s;
+        }
+
+        .topbar-breadcrumb-parent:hover { color: var(--text-secondary); }
+
+        .topbar-breadcrumb-current {
+            color: var(--text);
+            font-weight: 700;
+            letter-spacing: -.02em;
+        }
+
+        .topbar-search {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: .42rem .7rem;
+            min-width: 220px;
+            max-width: 320px;
+            flex: 1;
+            cursor: text;
+            transition: all .2s ease;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .topbar-search:hover {
+            border-color: #D1D5DE;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .topbar-search:focus-within {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .topbar-search-icon {
+            width: 15px;
+            height: 15px;
+            color: var(--muted-light);
+            flex-shrink: 0;
+        }
+
+        .topbar-search input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font: inherit;
+            font-size: .8rem;
+            color: var(--text);
+            width: 100%;
+        }
+
+        .topbar-search input::placeholder { color: var(--muted-faint); }
+
+        .topbar-search-shortcut {
+            display: inline-flex;
+            font-size: .62rem;
+            color: var(--muted-faint);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: .08rem .32rem;
+            line-height: 1;
+            white-space: nowrap;
+            flex-shrink: 0;
+            background: var(--canvas);
+            font-weight: 500;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+            margin-left: auto;
+        }
+
+        .topbar-icon-btn {
+            width: 33px;
+            height: 33px;
+            border-radius: var(--radius);
+            border: 1px solid transparent;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all .15s ease;
+            color: var(--muted);
+            position: relative;
+        }
+
+        .topbar-icon-btn:hover {
+            background: var(--white);
+            border-color: var(--border);
+            color: var(--text-secondary);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .topbar-icon-btn svg { width: 16px; height: 16px; }
+
+        .notification-dot {
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            width: 6px;
+            height: 6px;
+            background: var(--red);
+            border-radius: var(--radius-full);
+            box-shadow: 0 0 0 2px var(--canvas);
+        }
+
+        .topbar-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border);
+            margin: 0 .2rem;
+        }
+
+        .topbar-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            background: linear-gradient(145deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            padding: .48rem .85rem;
+            font: inherit;
+            font-size: .78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s ease;
+            white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(37,99,235,.25), 0 0 0 1px rgba(37,99,235,.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Shine effect on button */
+        .topbar-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,.12) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .topbar-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(37,99,235,.3), 0 0 0 1px rgba(37,99,235,.2);
+        }
+
+        .topbar-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(37,99,235,.2);
+        }
+
+        .topbar-btn svg { width: 14px; height: 14px; position: relative; z-index: 1; }
+
+        /* ── Board ───────────────────────── */
+        .board {
+            flex: 1;
+            display: flex;
+            gap: .85rem;
+            padding: 1.1rem 1.5rem 1.5rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        /* ── Column ──────────────────────── */
+        .column {
+            flex: 1;
+            min-width: 295px;
+            max-width: 390px;
+            display: flex;
+            flex-direction: column;
+            gap: .55rem;
+        }
+
+        .column-header {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .15rem .2rem;
+        }
+
+        .column-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: var(--radius-full);
+            flex-shrink: 0;
+            box-shadow: 0 0 6px currentColor;
+        }
+
+        .column-dot.inbox { background: var(--blue); color: var(--blue); }
+        .column-dot.progress { background: var(--yellow); color: var(--yellow); }
+        .column-dot.done { background: var(--green); color: var(--green); }
+
+        .column-title {
+            font-size: .8rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -.015em;
+        }
+
+        .column-count {
+            background: var(--border-subtle);
+            color: var(--muted);
+            font-size: .65rem;
+            font-weight: 600;
+            padding: .08rem .42rem;
+            border-radius: var(--radius-full);
+            line-height: 1.4;
+        }
+
+        .column-add-btn {
+            margin-left: auto;
+            width: 24px;
+            height: 24px;
+            border-radius: var(--radius-sm);
+            border: 1px dashed var(--border);
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted-light);
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .column-add-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-surface);
+        }
+
+        .column-add-btn svg { width: 13px; height: 13px; }
+
+        .column-cards {
+            display: flex;
+            flex-direction: column;
+            gap: .4rem;
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 2rem;
+        }
+
+        /* ── Card ────────────────────────── */
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: .8rem;
+            display: flex;
+            gap: .65rem;
+            transition: all .25s cubic-bezier(.4,0,.2,1);
+            cursor: pointer;
+            box-shadow: var(--shadow-card);
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius-lg);
+            opacity: 0;
+            transition: opacity .25s;
+            background: linear-gradient(135deg, rgba(37,99,235,.02) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-card-hover);
+            transform: translateY(-1px);
+            border-color: #D1D5DE;
+        }
+
+        .card:hover::before { opacity: 1; }
+
+        .card-upvote {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .1rem;
+            padding: .35rem .05rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-subtle);
+            min-width: 34px;
+            transition: all .2s ease;
+            flex-shrink: 0;
+            align-self: flex-start;
+            background: var(--canvas);
+        }
+
+        .card-upvote:hover {
+            border-color: var(--primary);
+            background: var(--primary-surface);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .card-upvote svg {
+            width: 12px;
+            height: 12px;
+            color: var(--muted-light);
+            transition: color .15s;
+        }
+
+        .card-upvote:hover svg { color: var(--primary); }
+
+        .card-upvote-count {
+            font-size: .7rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            line-height: 1;
+        }
+
+        .card-content { flex: 1; min-width: 0; }
+
+        .card-title {
+            font-size: .82rem;
+            font-weight: 650;
+            color: var(--text);
+            line-height: 1.35;
+            margin-bottom: .25rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-desc {
+            font-size: .75rem;
+            color: var(--muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: .5rem;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .25rem;
+            font-size: .65rem;
+            font-weight: 600;
+            padding: .12rem .48rem;
+            border-radius: var(--radius-full);
+            line-height: 1.4;
+        }
+
+        .card-badge-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: var(--radius-full);
+            background: currentColor;
+        }
+
+        .card-badge.critical { background: var(--red-bg); color: var(--red); box-shadow: 0 0 0 1px var(--red-glow); }
+        .card-badge.high { background: var(--orange-bg); color: var(--orange); box-shadow: 0 0 0 1px var(--orange-glow); }
+        .card-badge.medium { background: var(--blue-bg); color: var(--blue); box-shadow: 0 0 0 1px var(--blue-glow); }
+        .card-badge.low { background: var(--green-bg); color: var(--green); box-shadow: 0 0 0 1px var(--green-glow); }
+        .card-badge.status-open { background: var(--blue-bg); color: var(--blue); }
+        .card-badge.status-progress { background: var(--yellow-bg); color: var(--yellow); }
+        .card-badge.status-done { background: var(--green-bg); color: var(--green); }
+
+        .card-avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .55rem;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .card-avatar.dev1 { background: linear-gradient(135deg, #2563EB, #3B82F6); }
+        .card-avatar.dev2 { background: linear-gradient(135deg, #2563EB, #60A5FA); }
+        .card-avatar.dev3 { background: linear-gradient(135deg, #14B8A6, #0D9488); }
+        .card-avatar.dev4 { background: linear-gradient(135deg, #F59E0B, #D97706); }
+        .card-avatar.unassigned { background: #E2E6ED; color: #8B95A5; }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            margin-top: .4rem;
+        }
+
+        .card-meta-item {
+            display: flex;
+            align-items: center;
+            gap: .2rem;
+            font-size: .65rem;
+            color: var(--muted-light);
+        }
+
+        .card-meta-item svg { width: 11px; height: 11px; }
+
+        .card-id {
+            font-size: .65rem;
+            color: var(--muted-faint);
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ══════ MODAL ══════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(11,15,26,.45);
+            backdrop-filter: blur(12px) saturate(1.2);
+            -webkit-backdrop-filter: blur(12px) saturate(1.2);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            animation: fadeIn .2s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl), 0 0 0 1px rgba(0,0,0,.04);
+            width: 100%;
+            max-width: 540px;
+            max-height: 88vh;
+            overflow-y: auto;
+            animation: slideUp .25s cubic-bezier(.4,0,.2,1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(8px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.15rem 1.4rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .modal-title {
+            font-size: .95rem;
+            font-weight: 700;
+            letter-spacing: -.02em;
+        }
+
+        .modal-close {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted-light);
+            transition: all .15s;
+        }
+
+        .modal-close:hover {
+            background: var(--canvas);
+            color: var(--text);
+        }
+
+        .modal-close svg { width: 16px; height: 16px; }
+
+        .modal-body {
+            padding: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .modal-field { display: flex; flex-direction: column; gap: .3rem; }
+
+        .modal-label {
+            font-size: .75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .modal-input {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: .5rem .7rem;
+            font: inherit;
+            font-size: .82rem;
+            color: var(--text);
+            background: var(--white);
+            transition: all .2s ease;
+            width: 100%;
+        }
+
+        .modal-input:hover { border-color: #D1D5DE; }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .modal-input::placeholder { color: var(--muted-faint); }
+
+        textarea.modal-input {
+            min-height: 5.5rem;
+            resize: vertical;
+            line-height: 1.55;
+        }
+
+        .modal-select-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .7rem;
+        }
+
+        .modal-upload {
+            border: 1.5px dashed var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.6rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .45rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all .2s ease;
+            background: var(--canvas-warm);
+        }
+
+        .modal-upload:hover {
+            border-color: var(--primary);
+            background: var(--primary-surface);
+            border-style: solid;
+        }
+
+        .modal-upload-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-lg);
+            background: var(--white);
+            border: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            transition: all .2s;
+        }
+
+        .modal-upload:hover .modal-upload-icon {
+            background: var(--primary-surface);
+            border-color: var(--border-focus);
+            color: var(--primary);
+        }
+
+        .modal-upload-icon svg { width: 18px; height: 18px; }
+
+        .modal-upload-text {
+            font-size: .8rem;
+            color: var(--text-secondary);
+        }
+
+        .modal-upload-text strong { color: var(--primary); }
+
+        .modal-upload-hint {
+            font-size: .68rem;
+            color: var(--muted-light);
+        }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: .45rem;
+            padding: .9rem 1.4rem;
+            border-top: 1px solid var(--border-subtle);
+            background: var(--canvas-warm);
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+        }
+
+        .modal-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            padding: .45rem .8rem;
+            border-radius: var(--radius);
+            font: inherit;
+            font-size: .8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            border: 1px solid transparent;
+        }
+
+        .modal-btn-secondary {
+            background: var(--white);
+            border-color: var(--border);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn-secondary:hover {
+            background: var(--canvas);
+            border-color: #D1D5DE;
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(145deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%);
+            color: #fff;
+            box-shadow: 0 1px 3px rgba(37,99,235,.25), 0 0 0 1px rgba(37,99,235,.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,.1) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .modal-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(37,99,235,.3), 0 0 0 1px rgba(37,99,235,.2);
+        }
+
+        .modal-btn-primary svg { width: 14px; height: 14px; position: relative; z-index: 1; }
+
+        /* ══════ SCROLLBAR ══════ */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D1D5DE; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #B0B8C4; }
+        .sidebar ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); }
+        .sidebar ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.15); }
+
+        /* ══════ RESPONSIVE ══════ */
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .board { padding: .85rem; }
+            .column { min-width: 250px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-mark">
+                <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M9 9.5C9 8.12 10.12 7 11.5 7H13c1.38 0 2.5 1.12 2.5 2.5S14.38 12 13 12h-1.5"/><circle cx="12" cy="16" r=".5" fill="currentColor"/></svg>
+            </div>
+            <span class="sidebar-brand-text">Bug Tracker</span>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-label">Navigation</div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link" href="#">
+                    <svg class="sidebar-link-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                    Dashboard
+                </a>
+                <a class="sidebar-link active" href="#">
+                    <svg class="sidebar-link-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Issues
+                    <span class="sidebar-link-badge">24</span>
+                </a>
+                <a class="sidebar-link" href="#">
+                    <svg class="sidebar-link-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+                    Projects
+                    <span class="sidebar-link-badge">6</span>
+                </a>
+                <a class="sidebar-link" href="#">
+                    <svg class="sidebar-link-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                    Team
+                </a>
+            </nav>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-label">Projects</div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link" href="#">
+                    <span style="width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#3B82F6);flex-shrink:0;box-shadow:0 0 5px rgba(37,99,235,.3);"></span>
+                    Web App
+                </a>
+                <a class="sidebar-link" href="#">
+                    <span style="width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,#60A5FA,#93C5FD);flex-shrink:0;box-shadow:0 0 5px rgba(96,165,250,.3);"></span>
+                    Mobile iOS
+                </a>
+                <a class="sidebar-link" href="#">
+                    <span style="width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,#14B8A6,#0D9488);flex-shrink:0;box-shadow:0 0 5px rgba(20,184,166,.3);"></span>
+                    API Service
+                </a>
+            </nav>
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">AY</div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name">Ahmed Yassi</div>
+                    <div class="sidebar-user-role">Admin</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-breadcrumb">
+                <span class="topbar-breadcrumb-parent">Dashboard</span>
+                <span class="topbar-breadcrumb-sep">/</span>
+                <span class="topbar-breadcrumb-current">Issues</span>
+            </div>
+
+            <div class="topbar-search">
+                <svg class="topbar-search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Search issues...">
+                <span class="topbar-search-shortcut">/</span>
+            </div>
+
+            <div class="topbar-actions">
+                <button class="topbar-icon-btn" title="Filter">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                </button>
+                <button class="topbar-icon-btn" title="Notifications">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                    <span class="notification-dot"></span>
+                </button>
+                <div class="topbar-divider"></div>
+                <button class="topbar-btn">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Issue
+                </button>
+            </div>
+        </header>
+
+        <div class="board">
+
+            <!-- Column 1: Inbox -->
+            <div class="column">
+                <div class="column-header">
+                    <span class="column-dot inbox"></span>
+                    <span class="column-title">Inbox / Needs Triage</span>
+                    <span class="column-count">8</span>
+                    <button class="column-add-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                </div>
+                <div class="column-cards">
+
+                    <div class="card">
+                        <div class="card-upvote">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span class="card-upvote-count">12</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-footer" style="margin-bottom:.2rem;">
+                                <span class="card-id">#BUG-247</span>
+                                <span class="card-badge critical"><span class="card-badge-dot"></span> Critical</span>
+                            </div>
+                            <div class="card-title">Login page crashes on Safari when 2FA is enabled</div>
+                            <div class="card-desc">Users report a white screen when attempting to log in with two-factor authentication on Safari 17.</div>
+                            <div class="card-footer">
+                                <div class="card-meta">
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        2h ago
+                                    </span>
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                                        3
+                                    </span>
+                                </div>
+                                <div class="card-avatar dev1">AY</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-upvote">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span class="card-upvote-count">7</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-footer" style="margin-bottom:.2rem;">
+                                <span class="card-id">#BUG-245</span>
+                                <span class="card-badge high"><span class="card-badge-dot"></span> High</span>
+                            </div>
+                            <div class="card-title">Dashboard charts not loading for client role users</div>
+                            <div class="card-desc">The Chart.js canvases remain blank when a user with ROLE_CLIENT accesses the dashboard.</div>
+                            <div class="card-footer">
+                                <div class="card-meta">
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        5h ago
+                                    </span>
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                                        1
+                                    </span>
+                                </div>
+                                <div class="card-avatar dev2">MK</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-upvote">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span class="card-upvote-count">4</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-footer" style="margin-bottom:.2rem;">
+                                <span class="card-id">#BUG-243</span>
+                                <span class="card-badge medium"><span class="card-badge-dot"></span> Medium</span>
+                            </div>
+                            <div class="card-title">Screenshot upload fails for files larger than 1MB</div>
+                            <div class="card-desc">The file upload validation rejects images that are within the 2MB limit but have high resolution.</div>
+                            <div class="card-footer">
+                                <div class="card-meta">
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        1d ago
+                                    </span>
+                                </div>
+                                <div class="card-avatar unassigned">?</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-upvote">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span class="card-upvote-count">2</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-footer" style="margin-bottom:.2rem;">
+                                <span class="card-id">#BUG-241</span>
+                                <span class="card-badge low"><span class="card-badge-dot"></span> Low</span>
+                            </div>
+                            <div class="card-title">Email notifications not sent for new bug assignments</div>
+                            <div class="card-desc">Developers should receive an email when a new bug is assigned to them, but the mailer service is not triggering.</div>
+                            <div class="card-footer">
+                                <div class="card-meta">
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        2d ago
+                                    </span>
+                                </div>
+                                <div class="card-avatar dev3">SB</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Column 2: In Progress -->
+            <div class="column">
+                <div class="column-header">
+                    <span class="column-dot progress"></span>
+                    <span class="column-title">In Progress</span>
+                    <span class="column-count">5</span>
+                    <button class="column-add-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                </div>
+                <div class="column-cards">
+
+                    <div class="card">
+                        <div class="card-upvote">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span class="card-upvote-count">15</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-footer" style="margin-bottom:.2rem;">
+                                <span class="card-id">#BUG-239</span>
+                                <span class="card-badge status-progress"><span class="card-badge-dot"></span> In Progress</span>
+                            </div>
+                            <div class="card-title">Refactor bug report filtering to support multi-project queries</div>
+                            <div class="card-desc">Current filters are limited to a single project. Need to support selecting multiple projects simultaneously.</div>
+                            <div class="card-footer">
+                                <div class="card-meta">
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        3h ago
+                                    </span>
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                                        8
+                                    </span>
+                                </div>
+                                <div class="card-avatar dev1">AY</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-upvote">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span class="card-upvote-count">9</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-footer" style="margin-bottom:.2rem;">
+                                <span class="card-id">#BUG-236</span>
+                                <span class="card-badge status-progress"><span class="card-badge-dot"></span> In Progress</span>
+                            </div>
+                            <div class="card-title">Add real-time comment updates via Mercure</div>
+                            <div class="card-desc">Bug comments should appear in real-time without requiring a page refresh for all participants.</div>
+                            <div class="card-footer">
+                                <div class="card-meta">
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        6h ago
+                                    </span>
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                                        4
+                                    </span>
+                                </div>
+                                <div class="card-avatar dev2">MK</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-upvote">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span class="card-upvote-count">5</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-footer" style="margin-bottom:.2rem;">
+                                <span class="card-id">#BUG-234</span>
+                                <span class="card-badge high"><span class="card-badge-dot"></span> High</span>
+                            </div>
+                            <div class="card-title">Mobile responsive layout breaks on bug detail page</div>
+                            <div class="card-desc">The metric grid and timeline section overflow on screens smaller than 768px.</div>
+                            <div class="card-footer">
+                                <div class="card-meta">
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        1d ago
+                                    </span>
+                                </div>
+                                <div class="card-avatar dev3">SB</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Column 3: Done -->
+            <div class="column">
+                <div class="column-header">
+                    <span class="column-dot done"></span>
+                    <span class="column-title">Done</span>
+                    <span class="column-count">11</span>
+                    <button class="column-add-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                </div>
+                <div class="column-cards">
+
+                    <div class="card">
+                        <div class="card-upvote">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span class="card-upvote-count">22</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-footer" style="margin-bottom:.2rem;">
+                                <span class="card-id">#BUG-228</span>
+                                <span class="card-badge status-done"><span class="card-badge-dot"></span> Done</span>
+                            </div>
+                            <div class="card-title">Implement SweetAlert2 confirmation dialogs for all delete actions</div>
+                            <div class="card-desc">All destructive actions now show a styled confirmation modal before proceeding.</div>
+                            <div class="card-footer">
+                                <div class="card-meta">
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        3d ago
+                                    </span>
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                                        12
+                                    </span>
+                                </div>
+                                <div class="card-avatar dev1">AY</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-upvote">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span class="card-upvote-count">18</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-footer" style="margin-bottom:.2rem;">
+                                <span class="card-id">#BUG-221</span>
+                                <span class="card-badge status-done"><span class="card-badge-dot"></span> Done</span>
+                            </div>
+                            <div class="card-title">Add DataTables pagination and search to all list views</div>
+                            <div class="card-desc">All tables now have consistent pagination, search, and sorting with 15 rows per page.</div>
+                            <div class="card-footer">
+                                <div class="card-meta">
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        5d ago
+                                    </span>
+                                </div>
+                                <div class="card-avatar dev4">RZ</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-upvote">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                            <span class="card-upvote-count">14</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-footer" style="margin-bottom:.2rem;">
+                                <span class="card-id">#BUG-215</span>
+                                <span class="card-badge status-done"><span class="card-badge-dot"></span> Done</span>
+                            </div>
+                            <div class="card-title">Fix CSRF token validation on Turbo form submissions</div>
+                            <div class="card-desc">The Stimulus CSRF controller now correctly injects tokens for all Turbo-powered forms.</div>
+                            <div class="card-footer">
+                                <div class="card-meta">
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        1w ago
+                                    </span>
+                                    <span class="card-meta-item">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                                        6
+                                    </span>
+                                </div>
+                                <div class="card-avatar dev2">MK</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Create New Issue</h2>
+            <button class="modal-close">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-field">
+                <label class="modal-label">Title</label>
+                <input class="modal-input" type="text" placeholder="Brief summary of the issue...">
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">Description</label>
+                <textarea class="modal-input" placeholder="Detailed description, steps to reproduce, expected vs actual behavior..."></textarea>
+            </div>
+            <div class="modal-select-row">
+                <div class="modal-field">
+                    <label class="modal-label">Project</label>
+                    <select class="modal-input">
+                        <option>Web App</option>
+                        <option>Mobile iOS</option>
+                        <option>API Service</option>
+                    </select>
+                </div>
+                <div class="modal-field">
+                    <label class="modal-label">Priority</label>
+                    <select class="modal-input">
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option selected>High</option>
+                        <option>Critical</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">Assignee</label>
+                <select class="modal-input">
+                    <option value="">Unassigned</option>
+                    <option>Ahmed Yassi</option>
+                    <option>Mohamed Khaled</option>
+                    <option>Sara Benali</option>
+                    <option>Rami Zaidi</option>
+                </select>
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">Screenshot</label>
+                <div class="modal-upload">
+                    <div class="modal-upload-icon">
+                        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    </div>
+                    <div class="modal-upload-text"><strong>Click to upload</strong> or drag and drop</div>
+                    <div class="modal-upload-hint">JPG, PNG, or WEBP. Max 2MB.</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-secondary">Cancel</button>
+            <button class="modal-btn modal-btn-primary">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Create Issue
+            </button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

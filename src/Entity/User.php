@@ -66,12 +66,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(targetEntity: ClientProfile::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?ClientProfile $clientProfile = null;
 
+    /**
+     * @var Collection<int, Project>
+     */
+    #[ORM\ManyToMany(targetEntity: Project::class, mappedBy: 'assignedClients')]
+    private Collection $assignedProjects;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->reportedBugReports = new ArrayCollection();
         $this->assignedBugReports = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->assignedProjects = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -203,5 +210,47 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Project>
+     */
+    public function getAssignedProjects(): Collection
+    {
+        return $this->assignedProjects;
+    }
+
+    public function addAssignedProject(Project $project): static
+    {
+        if (!$this->assignedProjects->contains($project)) {
+            $this->assignedProjects->add($project);
+            $project->addAssignedClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssignedProject(Project $project): static
+    {
+        if ($this->assignedProjects->removeElement($project)) {
+            $project->removeAssignedClient($this);
+        }
+
+        return $this;
+    }
+
+    public function isClient(): bool
+    {
+        return in_array('ROLE_CLIENT', $this->roles, true);
+    }
+
+    public function isDeveloper(): bool
+    {
+        return in_array('ROLE_DEVELOPER', $this->roles, true);
+    }
+
+    public function isAdmin(): bool
+    {
+        return in_array('ROLE_ADMIN', $this->roles, true);
     }
 }

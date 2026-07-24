@@ -1,14 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Bug Report | Bug Report Platform{% endblock %}
+{% block title %}New Bug Report | FixFlow{% endblock %}
+{% block topbar_title %}New Bug Report{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>New Bug Report</h1>
             <p class="muted">Describe the issue clearly so the development team can reproduce it.</p>
         </div>
-        <a href="{{ path('app_bug_report_index') }}">Back to bugs</a>
+        <a class="button button-secondary" href="{{ path('app_bug_report_index') }}">Back to Bugs</a>
     </div>
 
     <section class="panel">
@@ -21,7 +21,6 @@
             {{ form_row(form.actualResult) }}
             {{ form_row(form.priority) }}
             {{ form_row(form.screenshot) }}
-
             <button class="button">Create Bug Report</button>
         {{ form_end(form) }}
     </section>

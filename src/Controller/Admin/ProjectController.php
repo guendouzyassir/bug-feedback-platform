@@ -3,8 +3,11 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Project;
+use App\Entity\User;
+use App\Form\ClientProjectType;
 use App\Form\ProjectType;
 use App\Repository\ProjectRepository;
+use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +25,7 @@ final class ProjectController extends AbstractController
     public function index(ProjectRepository $projectRepository): Response
     {
         return $this->render('admin/project/index.html.twig', [
-            'projects' => $projectRepository->findAll(),
+            'projects' => $projectRepository->findBy([], ['name' => 'ASC']),
         ]);
     }
 
@@ -72,6 +75,37 @@ final class ProjectController extends AbstractController
         }
 
         return $this->render('admin/project/edit.html.twig', [
+            'project' => $project,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}/assign-clients', name: 'app_admin_project_assign_clients', methods: ['GET', 'POST'])]
+    public function assignClients(
+        Request $request,
+        Project $project,
+        EntityManagerInterface $entityManager,
+        UserRepository $userRepository,
+    ): Response {
+        $clients = array_filter(
+            $userRepository->findBy(['isActive' => true], ['fullName' => 'ASC']),
+            fn (User $user) => $user->isClient()
+        );
+
+        $form = $this->createForm(ClientProjectType::class, $project, [
+            'clients' => $clients,
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Client assignments updated for "'.$project->getName().'."');
+
+            return $this->redirectToRoute('app_admin_project_show', ['id' => $project->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('admin/project/assign_clients.html.twig', [
             'project' => $project,
             'form' => $form,
         ]);

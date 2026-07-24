@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Manage Bug #{{ bug_report.id }} | Bug Report Platform{% endblock %}
+{% block title %}Manage Bug #{{ bug_report.id }} | FixFlow{% endblock %}
+{% block topbar_title %}Manage Bug #{{ bug_report.id }}{% endblock %}
 
 {% block body %}
     <div class="page-header">
@@ -8,11 +9,13 @@
             <h1>Manage Bug #{{ bug_report.id }}</h1>
             <p class="muted">{{ bug_report.title }}</p>
         </div>
-        <a class="button button-secondary" href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">Back to Bug</a>
+        <div class="actions">
+            <a class="button button-secondary" href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">Back to Bug</a>
+        </div>
     </div>
 
     <section class="panel stack">
-        <dl class="meta-list">
+        <dl class="meta-list" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
             <div>
                 <dt>Project</dt>
                 <dd>{{ bug_report.project.name }}</dd>
@@ -35,12 +38,14 @@
             </div>
         </dl>
 
-        {{ form_start(form, {'attr': {'class': 'form'}}) }}
-            {{ form_row(form.assignedDeveloper) }}
-            {{ form_row(form.priority) }}
-            {{ form_row(form.status) }}
-
-            <button class="button">Save Management Changes</button>
-        {{ form_end(form) }}
+        <div style="border-top: 1px solid var(--line-light); padding-top: 1.25rem; margin-top: .5rem;">
+            <h2 style="margin-bottom: 1rem;">Update Assignment</h2>
+            {{ form_start(form, {'attr': {'class': 'form'}}) }}
+                {{ form_row(form.assignedDeveloper) }}
+                {{ form_row(form.priority) }}
+                {{ form_row(form.status) }}
+                <button class="button">Save Management Changes</button>
+            {{ form_end(form) }}
+        </div>
     </section>
 {% endblock %}

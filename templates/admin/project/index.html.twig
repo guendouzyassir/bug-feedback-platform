@@ -1,23 +1,24 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Projects | Bug Report Platform{% endblock %}
+{% block title %}Projects | FixFlow{% endblock %}
+{% block topbar_title %}Projects{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Projects</h1>
             <p class="muted">Manage the web and mobile applications that can receive bug reports.</p>
         </div>
         <div class="actions">
             <a class="button" href="{{ path('app_admin_project_new') }}">New Project</a>
-            <a class="button button-secondary" href="{{ path('admin_dashboard') }}">Dashboard</a>
-            <a class="button button-secondary" href="{{ path('app_bug_report_index') }}">Bugs</a>
         </div>
     </div>
 
     <section class="panel">
         {% if projects is empty %}
-            <p class="muted">No projects have been created yet.</p>
+            <div class="empty-state">
+                <div class="empty-state-icon">&#128230;</div>
+                <p>No projects have been created yet.</p>
+            </div>
         {% else %}
             <div class="table-wrap">
                 <table>
@@ -26,8 +27,8 @@
                             <th>Name</th>
                             <th>Platform</th>
                             <th>Status</th>
-                            <th>Created</th>
-                            <th>Updated</th>
+                            <th>Clients</th>
+                            <th>Bugs</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -37,17 +38,35 @@
                                 <td>
                                     <a href="{{ path('app_admin_project_show', {'id': project.id}) }}">{{ project.name }}</a>
                                     {% if project.description %}
-                                        <div class="muted">{{ project.description }}</div>
+                                        <div class="muted" style="font-size:.82rem;margin-top:.15rem;">{{ project.description|length > 60 ? project.description|slice(0, 60) ~ '...' : project.description }}</div>
                                     {% endif %}
                                 </td>
                                 <td>{{ project.platform }}</td>
-                                <td>{{ project.isActive ? 'Active' : 'Inactive' }}</td>
-                                <td>{{ project.createdAt|date('Y-m-d H:i') }}</td>
-                                <td>{{ project.updatedAt|date('Y-m-d H:i') }}</td>
+                                <td>
+                                    <span class="badge {{ project.isActive ? 'badge-status-closed' : 'badge-status-rejected' }}"><span class="badge-dot"></span>{{ project.isActive ? 'Active' : 'Inactive' }}</span>
+                                </td>
+                                <td>
+                                    {% if project.assignedClients is empty %}
+                                        <span class="muted" style="font-size:.82rem;">None</span>
+                                    {% else %}
+                                        <div class="client-badge-list">
+                                            {% for client in project.assignedClients %}
+                                                {% if loop.index <= 3 %}
+                                                    <span class="client-avatar-sm" title="{{ client.fullName }}">{{ client.fullName|slice(0,1) }}</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if project.assignedClients|length > 3 %}
+                                                <span class="client-avatar-more">+{{ project.assignedClients|length - 3 }}</span>
+                                            {% endif %}
+                                            <span class="muted" style="font-size:.75rem;margin-left:.35rem;">{{ project.assignedClients|length }} client{{ project.assignedClients|length > 1 ? 's' : '' }}</span>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ project.bugReports|length }}</td>
                                 <td>
                                     <div class="actions">
-                                        <a href="{{ path('app_admin_project_show', {'id': project.id}) }}">View</a>
-                                        <a href="{{ path('app_admin_project_edit', {'id': project.id}) }}">Edit</a>
+                                        <a class="button button-sm button-secondary" href="{{ path('app_admin_project_show', {'id': project.id}) }}">View</a>
+                                        <a class="button button-sm" href="{{ path('app_admin_project_assign_clients', {'id': project.id}) }}">Clients</a>
                                     </div>
                                 </td>
                             </tr>

@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\BugReport;
 use App\Entity\Project;
+use App\Entity\User;
 use App\Enum\BugPriority;
 use App\Repository\ProjectRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -19,14 +20,31 @@ class BugReportType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        /** @var User|null $client */
+        $client = $options['client'];
+
         $builder
             ->add('project', EntityType::class, [
                 'class' => Project::class,
                 'choice_label' => 'name',
-                'query_builder' => fn (ProjectRepository $repo) => $repo->createQueryBuilder('p')
-                    ->where('p.isActive = :active')
-                    ->setParameter('active', true)
-                    ->orderBy('p.name', 'ASC'),
+                'query_builder' => function (ProjectRepository $repo) use ($client) {
+                    $qb = $repo->createQueryBuilder('p')
+                        ->where('p.isActive = :active')
+                        ->setParameter('active', true);
+
+                    if ($client !== null) {
+                        $projectIds = $client->getAssignedProjects()->map(fn ($p) => $p->getId())->toArray();
+
+                        if (!empty($projectIds)) {
+                            $qb->andWhere('p.id IN (:clientProjects)')
+                                ->setParameter('clientProjects', $projectIds);
+                        } else {
+                            $qb->andWhere('1 = 0');
+                        }
+                    }
+
+                    return $qb->orderBy('p.name', 'ASC');
+                },
             ])
             ->add('title')
             ->add('description', TextareaType::class)
@@ -70,6 +88,9 @@ class BugReportType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => BugReport::class,
+            'client' => null,
         ]);
+
+        $resolver->setAllowedTypes('client', ['null', User::class]);
     }
 }

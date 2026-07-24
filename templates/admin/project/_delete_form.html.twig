@@ -1,4 +1,4 @@
-<form method="post" action="{{ path('app_admin_project_delete', {'id': project.id}) }}" onsubmit="return confirm('Delete this project? Existing bug reports for this project may also be removed.');">
+<form method="post" action="{{ path('app_admin_project_delete', {'id': project.id}) }}" data-confirm="Delete this project? All associated bug reports will also be removed." data-confirm-title="Delete Project?">
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
-    <button class="button button-danger">Delete Project</button>
+    <button class="button button-sm button-danger">Delete Project</button>
 </form>

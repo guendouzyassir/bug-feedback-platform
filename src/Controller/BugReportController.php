@@ -17,7 +17,6 @@ use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -40,13 +39,23 @@ final class BugReportController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $canSeeAllBugs = $this->canSeeAllBugReports();
-        $bugReports = $bugReportRepository->findVisibleWithFilters($user, $canSeeAllBugs, $filters);
+        $bugReports = $bugReportRepository->findVisibleWithFilters($user, $filters);
+
+        $scopeLabel = match (true) {
+            $user->isAdmin() => 'All bug reports',
+            $user->isDeveloper() => 'My assigned bugs',
+            $user->isClient() => 'My project bugs',
+            default => 'Bug reports',
+        };
+
+        $visibleProjects = $user->isAdmin()
+            ? $projectRepository->findBy(['isActive' => true], ['name' => 'ASC'])
+            : $user->getAssignedProjects()->filter(fn ($p) => $p->isActive())->toArray();
 
         return $this->render('bug_report/index.html.twig', [
             'bug_reports' => $bugReports,
-            'scope_label' => $canSeeAllBugs ? 'All bug reports' : 'My bug reports',
-            'projects' => $projectRepository->findBy(['isActive' => true], ['name' => 'ASC']),
+            'scope_label' => $scopeLabel,
+            'projects' => $visibleProjects,
             'developers' => $userRepository->findDevelopers(),
             'statuses' => BugStatus::cases(),
             'priorities' => BugPriority::cases(),
@@ -101,7 +110,7 @@ final class BugReportController extends AbstractController
     #[Route('/{id}/status', name: 'app_bug_report_status', methods: ['POST'])]
     public function updateStatus(Request $request, BugReport $bugReport, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
     {
-        if (!$this->canUpdateBugStatus($bugReport)) {
+        if (!$this->isGranted('BUG_UPDATE_STATUS', $bugReport)) {
             throw $this->createAccessDeniedException('You cannot update this bug report status.');
         }
 
@@ -158,7 +167,7 @@ final class BugReportController extends AbstractController
         return $this->redirectToRoute('app_bug_report_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[IsGranted('ROLE_CLIENT')]
+    #[IsGranted('BUG_CREATE')]
     #[Route('/new', name: 'app_bug_report_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
     {
@@ -166,10 +175,18 @@ final class BugReportController extends AbstractController
         $user = $this->getUser();
 
         $bugReport = new BugReport();
-        $form = $this->createForm(BugReportType::class, $bugReport);
+        $form = $this->createForm(BugReportType::class, $bugReport, [
+            'client' => $user->isClient() ? $user : null,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $project = $bugReport->getProject();
+
+            if ($user->isClient() && $project !== null && !$project->isClientAssigned($user)) {
+                throw $this->createAccessDeniedException('You cannot create bugs in this project.');
+            }
+
             $bugReport
                 ->setReporter($user)
                 ->setStatus(BugStatus::Open);
@@ -196,7 +213,7 @@ final class BugReportController extends AbstractController
     #[Route('/{id}', name: 'app_bug_report_show', methods: ['GET', 'POST'])]
     public function show(Request $request, BugReport $bugReport, EntityManagerInterface $entityManager): Response
     {
-        if (!$this->canViewBugReport($bugReport)) {
+        if (!$this->isGranted('BUG_VIEW', $bugReport)) {
             throw $this->createAccessDeniedException('You cannot view this bug report.');
         }
 
@@ -224,15 +241,15 @@ final class BugReportController extends AbstractController
         return $this->render('bug_report/show.html.twig', [
             'bug_report' => $bugReport,
             'comment_form' => $commentForm,
-            'status_form' => $this->canUpdateBugStatus($bugReport) ? $this->createStatusForm($bugReport) : null,
-            'can_manage' => $this->canManageBugReport(),
+            'status_form' => $this->isGranted('BUG_UPDATE_STATUS', $bugReport) ? $this->createStatusForm($bugReport) : null,
+            'can_manage' => $this->isGranted('ROLE_ADMIN'),
         ]);
     }
 
     #[Route('/{id}/screenshot', name: 'app_bug_report_screenshot', methods: ['GET'])]
     public function screenshot(BugReport $bugReport, FileUploader $fileUploader): Response
     {
-        if (!$this->canViewBugReport($bugReport)) {
+        if (!$this->isGranted('BUG_VIEW', $bugReport)) {
             throw $this->createAccessDeniedException('You cannot view this screenshot.');
         }
 
@@ -243,7 +260,7 @@ final class BugReportController extends AbstractController
 
         try {
             $path = $fileUploader->getPath($filename);
-        } catch (FileException) {
+        } catch (\Symfony\Component\HttpFoundation\File\Exception\FileException) {
             throw $this->createNotFoundException('Screenshot file is invalid.');
         }
 
@@ -252,32 +269,6 @@ final class BugReportController extends AbstractController
         }
 
         return $this->file($path, null, ResponseHeaderBag::DISPOSITION_INLINE);
-    }
-
-    private function canViewBugReport(BugReport $bugReport): bool
-    {
-        return $this->canSeeAllBugReports()
-            || $bugReport->getReporter()?->getId() === $this->getUser()?->getId();
-    }
-
-    private function canSeeAllBugReports(): bool
-    {
-        return $this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_DEVELOPER');
-    }
-
-    private function canManageBugReport(): bool
-    {
-        return $this->isGranted('ROLE_ADMIN');
-    }
-
-    private function canUpdateBugStatus(BugReport $bugReport): bool
-    {
-        if ($this->isGranted('ROLE_ADMIN')) {
-            return true;
-        }
-
-        return $this->isGranted('ROLE_DEVELOPER')
-            && $bugReport->getAssignedDeveloper()?->getId() === $this->getUser()?->getId();
     }
 
     /**

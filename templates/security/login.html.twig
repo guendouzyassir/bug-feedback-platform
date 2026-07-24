@@ -1,30 +1,30 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Login | Bug Report Platform{% endblock %}
+{% block title %}Login | FixFlow{% endblock %}
 
 {% block body %}
     <section class="auth-shell">
         <div class="auth-panel">
-            <div class="auth-mark">
-                <span class="auth-dot"></span>
-                Bug Report Platform
+            <div class="auth-brand">
+                <span class="auth-brand-name">FixFlow</span>
             </div>
-            <h1>Login</h1>
-            <p class="muted">Internal access for admins, developers, and testers.</p>
+            <p class="auth-brand-tagline">Bug Feedback & Issue Tracking</p>
+            <h1>Welcome back</h1>
+            <p class="muted">Sign in to your account to continue.</p>
 
             {% if error %}
-                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                <div class="alert alert-danger" style="margin-top: 1rem;">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
             {% endif %}
 
             <form method="post" class="form auth-form">
                 <label>
                     Email
-                    <input type="email" value="{{ last_username }}" name="email" autocomplete="email" required autofocus>
+                    <input type="email" value="{{ last_username }}" name="email" autocomplete="email" required autofocus placeholder="you@example.com">
                 </label>
 
                 <label>
                     Password
-                    <input type="password" name="password" autocomplete="current-password" required>
+                    <input type="password" name="password" autocomplete="current-password" required placeholder="Enter your password">
                 </label>
 
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">

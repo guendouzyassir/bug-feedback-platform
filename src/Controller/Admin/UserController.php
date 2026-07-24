@@ -35,7 +35,7 @@ final class UserController extends AbstractController
         $user = new User();
         $form = $this->createForm(UserType::class, $user, [
             'is_create' => true,
-            'current_role' => 'ROLE_DEVELOPER',
+            'current_role' => 'ROLE_CLIENT',
         ]);
         $form->handleRequest($request);
 

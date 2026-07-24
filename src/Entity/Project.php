@@ -45,12 +45,20 @@ class Project
     #[ORM\OneToMany(mappedBy: 'project', targetEntity: BugReport::class, orphanRemoval: true)]
     private Collection $bugReports;
 
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'assignedProjects')]
+    #[ORM\JoinTable(name: 'project_client')]
+    private Collection $assignedClients;
+
     public function __construct()
     {
         $now = new \DateTimeImmutable();
         $this->createdAt = $now;
         $this->updatedAt = $now;
         $this->bugReports = new ArrayCollection();
+        $this->assignedClients = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -134,5 +142,34 @@ class Project
     public function getBugReports(): Collection
     {
         return $this->bugReports;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getAssignedClients(): Collection
+    {
+        return $this->assignedClients;
+    }
+
+    public function addAssignedClient(User $client): static
+    {
+        if (!$this->assignedClients->contains($client)) {
+            $this->assignedClients->add($client);
+        }
+
+        return $this;
+    }
+
+    public function removeAssignedClient(User $client): static
+    {
+        $this->assignedClients->removeElement($client);
+
+        return $this;
+    }
+
+    public function isClientAssigned(User $client): bool
+    {
+        return $this->assignedClients->contains($client);
     }
 }
