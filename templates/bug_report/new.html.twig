@@ -8,7 +8,7 @@
         <div>
             <p class="muted">Describe the issue clearly so the development team can reproduce it.</p>
         </div>
-        <a class="button button-secondary" href="{{ path('app_bug_report_index') }}">Back to Bugs</a>
+        <a class="btn btn-secondary" href="{{ path('app_bug_report_index') }}">Back to Bugs</a>
     </div>
 
     <section class="panel">
@@ -21,7 +21,7 @@
             {{ form_row(form.actualResult) }}
             {{ form_row(form.priority) }}
             {{ form_row(form.screenshot) }}
-            <button class="button">Create Bug Report</button>
+            <button class="btn">Create Bug Report</button>
         {{ form_end(form) }}
     </section>
 {% endblock %}

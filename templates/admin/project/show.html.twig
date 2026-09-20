@@ -9,10 +9,10 @@
             <p class="muted">{{ project.platform }} project &middot; {{ project.isActive ? 'Active' : 'Inactive' }}</p>
         </div>
         <div class="actions">
-            <a class="button" href="{{ path('app_admin_project_assign_clients', {'id': project.id}) }}">Assign Clients</a>
-            <a class="button button-secondary" href="{{ path('app_admin_project_edit', {'id': project.id}) }}">Edit</a>
+            <a class="btn" href="{{ path('app_admin_project_assign_clients', {'id': project.id}) }}">Assign Clients</a>
+            <a class="btn btn-secondary" href="{{ path('app_admin_project_edit', {'id': project.id}) }}">Edit / Assign Developers</a>
             {{ include('admin/project/_delete_form.html.twig') }}
-            <a class="button button-secondary" href="{{ path('app_admin_project_index') }}">Back to Projects</a>
+            <a class="btn btn-secondary" href="{{ path('app_admin_project_index') }}">Back to Projects</a>
         </div>
     </div>
 
@@ -45,6 +45,19 @@
                 <dd>{{ project.bugReports|length }}</dd>
             </div>
         </dl>
+    </section>
+
+    <section class="panel" style="margin-top:1.25rem;">
+        <h2>Assigned Developers</h2>
+        {% if project.assignedDevelopers is empty %}
+            <p class="muted">No developers assigned. Use Edit / Assign Developers to grant access.</p>
+        {% else %}
+            <ul>
+                {% for developer in project.assignedDevelopers %}
+                    <li>{{ developer.fullName }} &mdash; {{ developer.email }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </section>
 
     <section class="panel" style="margin-top:1.25rem;">

@@ -20,24 +20,23 @@ class BugReportType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        /** @var User|null $client */
-        $client = $options['client'];
+        /** @var User $reporter */
+        $reporter = $options['reporter'];
 
         $builder
             ->add('project', EntityType::class, [
                 'class' => Project::class,
                 'choice_label' => 'name',
-                'query_builder' => function (ProjectRepository $repo) use ($client) {
+                'query_builder' => function (ProjectRepository $repo) use ($reporter) {
                     $qb = $repo->createQueryBuilder('p')
                         ->where('p.isActive = :active')
                         ->setParameter('active', true);
 
-                    if ($client !== null) {
-                        $projectIds = $client->getAssignedProjects()->map(fn ($p) => $p->getId())->toArray();
-
-                        if (!empty($projectIds)) {
-                            $qb->andWhere('p.id IN (:clientProjects)')
-                                ->setParameter('clientProjects', $projectIds);
+                    if (!$reporter->isAdmin()) {
+                        if ($reporter->isDeveloper()) {
+                            $qb->andWhere(':reporter MEMBER OF p.assignedDevelopers')->setParameter('reporter', $reporter);
+                        } elseif ($reporter->isClient()) {
+                            $qb->andWhere(':reporter MEMBER OF p.assignedClients')->setParameter('reporter', $reporter);
                         } else {
                             $qb->andWhere('1 = 0');
                         }
@@ -88,9 +87,9 @@ class BugReportType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => BugReport::class,
-            'client' => null,
         ]);
 
-        $resolver->setAllowedTypes('client', ['null', User::class]);
+        $resolver->setRequired('reporter');
+        $resolver->setAllowedTypes('reporter', User::class);
     }
 }

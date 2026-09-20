@@ -4,11 +4,11 @@
 
 **A modern role-based bug tracking & feedback management platform**
 
-Built with **Symfony 7.4** | **PHP 8.2+** | **Doctrine ORM**
+Built with **Symfony 7.4** | **PHP 8.4.1+** | **Doctrine ORM**
 
-[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/)
+[![PHP](https://img.shields.io/badge/PHP-8.4.1+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/)
 [![Symfony](https://img.shields.io/badge/Symfony-7.4-000000?style=for-the-badge&logo=symfony&logoColor=white)](https://symfony.com/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-8B0000?style=for-the-badge)](LICENSE)
 
 </div>
 
@@ -29,9 +29,10 @@ Bug Feedback Platform streamlines the entire bug lifecycle — from **reporting*
 - **Bug Oversight** — manage, assign, and delete any bug report across the platform
 
 ### Developer
-- **Assignment View** — see all bugs assigned to you
+- **Project Assignments** — administrators select developers when creating or editing a project
+- **Bug View** — see bugs only in projects explicitly assigned to you
 - **Status Updates** — progress bugs through the pipeline (Open → In Progress → Fixed / Rejected)
-- **Full Bug Access** — browse and comment on any bug report
+- **Bug Access** — report, view, comment on, and update bugs in your assigned projects; previous bug ownership does not bypass project access
 
 ### Client / Tester
 - **Bug Submission** — report bugs with title, description, steps to reproduce, expected/actual results, priority, and screenshot uploads
@@ -66,7 +67,7 @@ Bug Feedback Platform streamlines the entire bug lifecycle — from **reporting*
 
 | Layer | Technology |
 |---|---|
-| Backend | PHP 8.2+, Symfony 7.4 |
+| Backend | PHP 8.4.1+, Symfony 7.4 |
 | ORM | Doctrine ORM 3.6 |
 | Database | SQLite (dev) / MySQL / MariaDB (prod) |
 | Templating | Twig |
@@ -83,6 +84,7 @@ Bug Feedback Platform streamlines the entire bug lifecycle — from **reporting*
 - **CSRF protection** on all forms
 - **Password hashing** with bcrypt/argon2
 - **User activation system** — admins can deactivate accounts
+- **Login throttling** — five failed attempts per username/IP in five minutes, plus an IP-wide limit
 - **File upload validation** — type checking (JPG/PNG/WEBP), size limits (2MB), random filenames, path traversal protection
 - **Sensitive environment files** excluded from version control
 
@@ -129,7 +131,7 @@ The bug list supports **7 filter parameters** for precise issue tracking:
 
 ### Prerequisites
 
-- PHP >= 8.2
+- PHP >= 8.4.1 (required by PHPUnit 13)
 - Composer
 - SQLite (dev) or MySQL/MariaDB
 

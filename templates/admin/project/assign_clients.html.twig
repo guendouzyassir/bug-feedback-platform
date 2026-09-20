@@ -9,7 +9,7 @@
             <p class="muted">Select the clients who should have access to this project.</p>
         </div>
         <div class="actions">
-            <a class="button button-secondary" href="{{ path('app_admin_project_show', {'id': project.id}) }}">Back to Project</a>
+            <a class="btn btn-secondary" href="{{ path('app_admin_project_show', {'id': project.id}) }}">Back to Project</a>
         </div>
     </div>
 
@@ -36,8 +36,8 @@
                     <input type="search" placeholder="Search clients by name or email..." id="clientSearchInput">
                 </div>
                 <div style="display:flex;gap:.5rem;">
-                    <button type="button" class="button button-sm button-ghost" onclick="selectAllClients()">Select All</button>
-                    <button type="button" class="button button-sm button-ghost" onclick="deselectAllClients()">Deselect All</button>
+                    <button type="button" class="btn btn-sm btn-ghost" onclick="selectAllClients()">Select All</button>
+                    <button type="button" class="btn btn-sm btn-ghost" onclick="deselectAllClients()">Deselect All</button>
                 </div>
             </div>
 
@@ -85,8 +85,8 @@
         </section>
 
         <div style="display:flex;align-items:center;gap:.75rem;justify-content:flex-end;flex-wrap:wrap;">
-            <button class="button" type="submit">Save Assignments</button>
-            <a class="button button-secondary" href="{{ path('app_admin_project_show', {'id': project.id}) }}">Cancel</a>
+            <button class="btn" type="submit">Save Assignments</button>
+            <a class="btn btn-secondary" href="{{ path('app_admin_project_show', {'id': project.id}) }}">Cancel</a>
         </div>
     {{ form_end(form, {'render_rest': false}) }}
 

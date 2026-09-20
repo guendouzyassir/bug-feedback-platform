@@ -12,7 +12,7 @@
             <p class="muted">Create and manage accounts for admins, developers, clients, and testers.</p>
         </div>
         <div class="actions">
-            <a class="button" href="{{ path('app_admin_user_new') }}">New User</a>
+            <a class="btn" href="{{ path('app_admin_user_new') }}">New User</a>
         </div>
     </div>
 
@@ -61,7 +61,7 @@
                                 <td>{{ user.createdAt|date('Y-m-d') }}</td>
                                 <td>
                                     <div class="actions">
-                                        <a class="button button-sm button-secondary" href="{{ path('app_admin_user_edit', {'id': user.id}) }}">Edit</a>
+                                        <a class="btn btn-sm btn-secondary" href="{{ path('app_admin_user_edit', {'id': user.id}) }}">Edit</a>
                                         {% if app.user and app.user.id != user.id %}
                                             {% include 'admin/user/_delete_form.html.twig' with {user: user} %}
                                         {% endif %}

@@ -43,14 +43,16 @@ final class BugReportController extends AbstractController
 
         $scopeLabel = match (true) {
             $user->isAdmin() => 'All bug reports',
-            $user->isDeveloper() => 'My assigned bugs',
+            $user->isDeveloper() => 'My project bugs',
             $user->isClient() => 'My project bugs',
             default => 'Bug reports',
         };
 
-        $visibleProjects = $user->isAdmin()
-            ? $projectRepository->findBy(['isActive' => true], ['name' => 'ASC'])
-            : $user->getAssignedProjects()->filter(fn ($p) => $p->isActive())->toArray();
+        $visibleProjects = match (true) {
+            $user->isAdmin() => $projectRepository->findBy(['isActive' => true], ['name' => 'ASC']),
+            $user->isDeveloper() => $projectRepository->findVisibleForDeveloper($user),
+            default => $user->getAssignedProjects()->filter(fn ($p) => $p->isActive())->toArray(),
+        };
 
         return $this->render('bug_report/index.html.twig', [
             'bug_reports' => $bugReports,
@@ -72,7 +74,7 @@ final class BugReportController extends AbstractController
         UserRepository $userRepository,
     ): Response {
         $form = $this->createForm(BugManagementType::class, $bugReport, [
-            'developers' => $userRepository->findDevelopers(),
+            'developers' => $userRepository->findDevelopersForProject($bugReport->getProject()),
         ]);
         $form->handleRequest($request);
 
@@ -157,14 +159,14 @@ final class BugReportController extends AbstractController
 
         $bugReport = new BugReport();
         $form = $this->createForm(BugReportType::class, $bugReport, [
-            'client' => $user->isClient() ? $user : null,
+            'reporter' => $user,
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $project = $bugReport->getProject();
 
-            if ($user->isClient() && $project !== null && !$project->isClientAssigned($user)) {
+            if ($project === null || !$project->isActive() || !$this->isGranted('PROJECT_VIEW', $project)) {
                 throw $this->createAccessDeniedException('You cannot create bugs in this project.');
             }
 

@@ -52,6 +52,11 @@ class Project
     #[ORM\JoinTable(name: 'project_client')]
     private Collection $assignedClients;
 
+    /** @var Collection<int, User> */
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'developmentProjects')]
+    #[ORM\JoinTable(name: 'project_developer')]
+    private Collection $assignedDevelopers;
+
     public function __construct()
     {
         $now = new \DateTimeImmutable();
@@ -59,6 +64,7 @@ class Project
         $this->updatedAt = $now;
         $this->bugReports = new ArrayCollection();
         $this->assignedClients = new ArrayCollection();
+        $this->assignedDevelopers = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -177,5 +183,35 @@ class Project
     public function isClientAssigned(User $client): bool
     {
         return $this->assignedClients->contains($client);
+    }
+
+    /** @return Collection<int, User> */
+    public function getAssignedDevelopers(): Collection
+    {
+        return $this->assignedDevelopers;
+    }
+
+    public function addAssignedDeveloper(User $developer): static
+    {
+        if (!$this->assignedDevelopers->contains($developer)) {
+            $this->assignedDevelopers->add($developer);
+            $developer->addDevelopmentProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssignedDeveloper(User $developer): static
+    {
+        if ($this->assignedDevelopers->removeElement($developer)) {
+            $developer->removeDevelopmentProject($this);
+        }
+
+        return $this;
+    }
+
+    public function isDeveloperAssigned(User $developer): bool
+    {
+        return $this->assignedDevelopers->contains($developer);
     }
 }

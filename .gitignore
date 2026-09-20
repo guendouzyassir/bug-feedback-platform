@@ -1,3 +1,14 @@
+###> sensitive environment files ###
+### NOTE: .env must NOT be committed. If it is still tracked,
+### run "git rm --cached .env" once and never commit it again.
+/.env
+/.env.local
+/.env.dev
+/.env.test
+/.env.prod
+/.env.local.php
+/.env.*.local
+###< sensitive environment files ###
 
 ###> symfony/framework-bundle ###
 /.env.local
@@ -14,9 +25,35 @@
 ###> phpunit/phpunit ###
 /phpunit.xml
 /.phpunit.cache/
+/.phpunit.result.cache
 ###< phpunit/phpunit ###
 
 ###> symfony/asset-mapper ###
 /public/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
+
+###> logs ###
+*.log
+/var/log/
+###< logs ###
+
+###> generated output & temporary files ###
+/output/
+/tmp/
+###< generated output & temporary files ###
+
+###> IDE / editor ###
+/.idea/
+/.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+###< IDE / editor ###
+
+###> OS ###
+.DS_Store
+Thumbs.db
+###< OS ###

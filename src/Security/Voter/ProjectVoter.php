@@ -41,6 +41,10 @@ class ProjectVoter extends Voter
 
     private function canView(Project $project, User $user): bool
     {
+        if ($user->isDeveloper()) {
+            return $project->isDeveloperAssigned($user);
+        }
+
         if ($user->isClient()) {
             return $project->isClientAssigned($user);
         }

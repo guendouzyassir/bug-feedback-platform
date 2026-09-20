@@ -52,7 +52,7 @@ class BugReportVoter extends Voter
         }
 
         if ($user->isDeveloper()) {
-            return $bug->getAssignedDeveloper()?->getId() === $user->getId();
+            return $bug->getProject()?->isDeveloperAssigned($user) ?? false;
         }
 
         if ($user->isClient()) {
@@ -75,7 +75,7 @@ class BugReportVoter extends Voter
         }
 
         if ($user->isDeveloper()) {
-            return $bug->getAssignedDeveloper()?->getId() === $user->getId();
+            return $bug->getProject()?->isDeveloperAssigned($user) ?? false;
         }
 
         return false;
@@ -84,7 +84,7 @@ class BugReportVoter extends Voter
     private function canCreate(User $user): bool
     {
         if ($user->isDeveloper()) {
-            return true;
+            return $user->getDevelopmentProjects()->exists(fn ($key, $project) => $project->isActive());
         }
 
         if ($user->isClient()) {

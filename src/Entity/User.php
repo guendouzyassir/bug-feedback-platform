@@ -72,6 +72,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Project::class, mappedBy: 'assignedClients')]
     private Collection $assignedProjects;
 
+    /** @var Collection<int, Project> */
+    #[ORM\ManyToMany(targetEntity: Project::class, mappedBy: 'assignedDevelopers')]
+    private Collection $developmentProjects;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -79,6 +83,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->assignedBugReports = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->assignedProjects = new ArrayCollection();
+        $this->developmentProjects = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -234,6 +239,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->assignedProjects->removeElement($project)) {
             $project->removeAssignedClient($this);
+        }
+
+        return $this;
+    }
+
+    /** @return Collection<int, Project> */
+    public function getDevelopmentProjects(): Collection
+    {
+        return $this->developmentProjects;
+    }
+
+    public function addDevelopmentProject(Project $project): static
+    {
+        if (!$this->developmentProjects->contains($project)) {
+            $this->developmentProjects->add($project);
+            $project->addAssignedDeveloper($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDevelopmentProject(Project $project): static
+    {
+        if ($this->developmentProjects->removeElement($project)) {
+            $project->removeAssignedDeveloper($this);
         }
 
         return $this;

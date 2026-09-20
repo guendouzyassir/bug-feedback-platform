@@ -9,14 +9,10 @@
             <h1>Edit Project</h1>
             <p class="muted">{{ project.name }}</p>
         </div>
-        <a class="button button-secondary" href="{{ path('app_admin_project_index') }}">Back to Projects</a>
+        <a class="btn btn-secondary" href="{{ path('app_admin_project_index') }}">Back to Projects</a>
     </div>
 
     <section class="panel stack">
         {{ include('admin/project/_form.html.twig', {'button_label': 'Update Project'}) }}
-        <div style="border-top: 1px solid var(--line-light); padding-top: 1.25rem; margin-top: .5rem;">
-            <h2 style="color: var(--danger); margin-bottom: .75rem;">Danger Zone</h2>
-            {{ include('admin/project/_delete_form.html.twig') }}
-        </div>
     </section>
 {% endblock %}

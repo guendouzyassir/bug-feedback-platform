@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\User;
+use App\Entity\Project;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -34,6 +35,24 @@ class UserRepository extends ServiceEntityRepository
     /**
      * @return User[]
      */
+    public function findDevelopersForProject(?Project $project): array
+    {
+        if ($project === null) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('u')
+            ->where('u.isActive = :active')
+            ->andWhere('u.roles LIKE :role')
+            ->andWhere(':project MEMBER OF u.developmentProjects')
+            ->setParameter('active', true)
+            ->setParameter('role', '%ROLE_DEVELOPER%')
+            ->setParameter('project', $project)
+            ->orderBy('u.fullName', 'ASC')
+            ->getQuery()->getResult();
+    }
+
+    /** @return User[] */
     public function findByRole(?string $role): array
     {
         $qb = $this->createQueryBuilder('u')

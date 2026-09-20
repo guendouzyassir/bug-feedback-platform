@@ -1,7 +1,0 @@
-framework:
-    rate_limiter:
-        login:
-            policy: 'sliding_window'
-            limit: 5
-            interval: '5 minutes'
-            cache_pool: 'cache.app'

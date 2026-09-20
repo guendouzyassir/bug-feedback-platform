@@ -9,7 +9,7 @@
             <p class="muted">Manage the web and mobile applications that can receive bug reports.</p>
         </div>
         <div class="actions">
-            <a class="button" href="{{ path('app_admin_project_new') }}">New Project</a>
+            <a class="btn" href="{{ path('app_admin_project_new') }}">New Project</a>
         </div>
     </div>
 
@@ -28,6 +28,7 @@
                             <th>Platform</th>
                             <th>Status</th>
                             <th>Clients</th>
+                            <th>Developers</th>
                             <th>Bugs</th>
                             <th>Actions</th>
                         </tr>
@@ -62,11 +63,13 @@
                                         </div>
                                     {% endif %}
                                 </td>
+                                <td>{{ project.assignedDevelopers|length }}</td>
                                 <td>{{ project.bugReports|length }}</td>
                                 <td>
                                     <div class="actions">
-                                        <a class="button button-sm button-secondary" href="{{ path('app_admin_project_show', {'id': project.id}) }}">View</a>
-                                        <a class="button button-sm" href="{{ path('app_admin_project_assign_clients', {'id': project.id}) }}">Clients</a>
+                                        <a class="btn btn-sm btn-secondary" href="{{ path('app_admin_project_show', {'id': project.id}) }}">View</a>
+                                        <a class="btn btn-sm" href="{{ path('app_admin_project_assign_clients', {'id': project.id}) }}">Clients</a>
+                                        <a class="btn btn-sm btn-secondary" href="{{ path('app_admin_project_edit', {'id': project.id}) }}">Developers</a>
                                     </div>
                                 </td>
                             </tr>

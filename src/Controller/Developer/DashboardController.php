@@ -18,16 +18,14 @@ class DashboardController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $allAssigned = $bugReportRepository->count(['assignedDeveloper' => $user]);
-        $inProgress = $bugReportRepository->count(['assignedDeveloper' => $user, 'status' => BugStatus::InProgress]);
-        $open = $bugReportRepository->count(['assignedDeveloper' => $user, 'status' => BugStatus::Open]);
-        $fixed = $bugReportRepository->count(['assignedDeveloper' => $user, 'status' => BugStatus::Fixed]);
+        $counts = $bugReportRepository->countByStatus($user);
 
         return $this->render('developer/dashboard.html.twig', [
-            'assignedBugCount' => $allAssigned,
-            'inProgressCount' => $inProgress,
-            'openCount' => $open,
-            'fixedCount' => $fixed,
+            'projectBugCount' => array_sum($counts),
+            'inProgressCount' => $counts[BugStatus::InProgress->value] ?? 0,
+            'openCount' => $counts[BugStatus::Open->value] ?? 0,
+            'fixedCount' => $counts[BugStatus::Fixed->value] ?? 0,
+            'assignedProjects' => $user->getDevelopmentProjects(),
         ]);
     }
 }

@@ -20,8 +20,8 @@
                     Table
                 </button>
             </div>
-            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_DEVELOPER') or is_granted('ROLE_CLIENT') %}
-                <a class="button" href="{{ path('app_bug_report_new') }}">New Bug Report</a>
+            {% if is_granted('BUG_CREATE') %}
+                <a class="btn" href="{{ path('app_bug_report_new') }}">New Bug Report</a>
             {% endif %}
         </div>
     </div>
@@ -79,8 +79,8 @@
                 <input type="date" name="dateTo" value="{{ filters.dateTo }}">
             </label>
             <div class="filter-actions">
-                <button class="button">Filter</button>
-                <a class="button button-secondary" href="{{ path('app_bug_report_index') }}">Reset</a>
+                <button class="btn">Filter</button>
+                <a class="btn btn-secondary" href="{{ path('app_bug_report_index') }}">Reset</a>
             </div>
         </form>
     </section>
@@ -171,7 +171,7 @@
                                     <td>{{ bug_report.reporter.fullName }}</td>
                                     <td>{{ bug_report.assignedDeveloper ? bug_report.assignedDeveloper.fullName : 'Unassigned' }}</td>
                                     <td>{{ bug_report.createdAt|date('Y-m-d') }}</td>
-                                    <td><a class="button button-sm button-secondary" href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">View</a></td>
+                                    <td><a class="btn btn-sm btn-secondary" href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">View</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

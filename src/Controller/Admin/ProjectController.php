@@ -67,6 +67,12 @@ final class ProjectController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $project->touch();
+            foreach ($project->getBugReports() as $bug) {
+                $developer = $bug->getAssignedDeveloper();
+                if ($developer !== null && !$project->isDeveloperAssigned($developer)) {
+                    $bug->setAssignedDeveloper(null)->touch();
+                }
+            }
             $entityManager->flush();
 
             $this->addFlash('success', 'Project updated successfully.');

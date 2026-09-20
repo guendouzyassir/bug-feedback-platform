@@ -10,7 +10,7 @@
             <p class="muted">{{ bug_report.title }}</p>
         </div>
         <div class="actions">
-            <a class="button button-secondary" href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">Back to Bug</a>
+            <a class="btn btn-secondary" href="{{ path('app_bug_report_show', {'id': bug_report.id}) }}">Back to Bug</a>
         </div>
     </div>
 
@@ -44,7 +44,7 @@
                 {{ form_row(form.assignedDeveloper) }}
                 {{ form_row(form.priority) }}
                 {{ form_row(form.status) }}
-                <button class="button">Save Management Changes</button>
+                <button class="btn">Save Management Changes</button>
             {{ form_end(form) }}
         </div>
     </section>

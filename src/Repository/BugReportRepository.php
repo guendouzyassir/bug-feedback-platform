@@ -46,9 +46,9 @@ class BugReportRepository extends ServiceEntityRepository
         if ($user->isAdmin()) {
             // Admin sees everything - no restriction
         } elseif ($user->isDeveloper()) {
-            // Developer sees only bugs assigned to them
+            // Project membership is required even for previously reported or assigned bugs.
             $queryBuilder
-                ->andWhere('bug.assignedDeveloper = :currentUser')
+                ->andWhere(':currentUser MEMBER OF project.assignedDevelopers')
                 ->setParameter('currentUser', $user);
         } elseif ($user->isClient()) {
             // Client sees only bugs in their assigned projects
@@ -62,6 +62,8 @@ class BugReportRepository extends ServiceEntityRepository
                     ->andWhere('project.id IN (:clientProjectIds)')
                     ->setParameter('clientProjectIds', $projectIds);
             }
+        } else {
+            $queryBuilder->andWhere('1 = 0');
         }
 
         if (!empty($filters['keyword'])) {
@@ -112,14 +114,20 @@ class BugReportRepository extends ServiceEntityRepository
     /**
      * @return array<string, int>
      */
-    public function countByStatus(): array
+    public function countByStatus(?User $developer = null): array
     {
-        $rows = $this->createQueryBuilder('bug')
+        $qb = $this->createQueryBuilder('bug')
             ->select('bug.status AS status, COUNT(bug.id) AS bugCount')
             ->groupBy('bug.status')
-            ->orderBy('bug.status', 'ASC')
-            ->getQuery()
-            ->getArrayResult();
+            ->orderBy('bug.status', 'ASC');
+
+        if ($developer !== null) {
+            $qb->innerJoin('bug.project', 'project')
+                ->andWhere(':developer MEMBER OF project.assignedDevelopers')
+                ->setParameter('developer', $developer);
+        }
+
+        $rows = $qb->getQuery()->getArrayResult();
 
         $counts = [];
         foreach ($rows as $row) {
